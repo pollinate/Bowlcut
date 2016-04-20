@@ -1,0 +1,23 @@
+{
+  "name": "bowlcut.js",
+  "version": "1.0.0",
+  "description": "Written by Duncan Alexander, 2015",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://hypothete@bitbucket.org/pollinate-dev/bowlcut.js.git"
+  },
+  "author": "Duncan Alexander (hypothete)",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/pollinate-dev/bowlcut.js#readme",
+  "dependencies": {
+    "lodash": "^4.11.1",
+    "opentype.js": "^0.6.2"
+  }
+}

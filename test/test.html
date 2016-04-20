@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Bowlcut test page</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			color: #555;
+		}
+	</style>
+</head>
+<body>
+	<div id="tests">
+<!-- 		<svg version="1.1" id="center-test" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="500px" height="300px" viewBox="0 0 500 300" enable-background="new 0 0 500 300" xml:space="preserve">
+			<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M18,244.88C18.466,105.12,231.365,105.12,250,105.12 s231.883,0,232,139.759"/>
+		</svg>
+
+		<svg version="1.1" id="reverse-test" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="500px" height="300px" viewBox="0 0 500 300" enable-background="new 0 0 500 300" xml:space="preserve">
+			<path fill="#FFFFFF" stroke="#000000" stroke-miterlimit="10" d="M490.138,284.103c4.294-17.16,14.948-69.309-12.414-121.379 c-9.309-17.716-16.027-30.5-29.655-39.31c-50.392-32.577-121.282,37.008-271.034,68.276c-42.052,8.78-110.534,22.433-128.276-5.517 c-17.574-27.687,26.406-77.662,5.517-103.448C43.495,69.415,21.092,69.535,3.931,71.69"/>
+		</svg>
+ -->
+		<svg version="1.1" id="circle-test" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="500px" height="300px" viewBox="0 0 500 300" enable-background="new 0 0 500 300" xml:space="preserve">
+		</svg>
+	</div>
+
+	<div id="controls">
+		<input type="text" placeholder="bowlcut.js" oninput="redraw()" value="bowlcut.js bowlcut.js"/>
+
+		<select id="glyphbehavior-select" onchange="redraw()">
+			<option value="upright">Upright</option>
+			<option selected value="tangent">Tangent</option>
+			<option value="ribbon">Ribbon</option>
+		</select>
+
+		<select id="minbehavior-select" onchange="redraw()">
+			<option selected value="center">Center</option>
+			<option value="left">Left</option>
+			<option value="right">Right</option>
+			<option value="justify">Justify</option>
+			<!-- <option value="flex-tracking">Flex Tracking</option>
+			<option value="pad-tracking">Pad Tracking</option> -->
+		</select>
+
+		<select id="maxbehavior-select" onchange="redraw()">
+			<option value="center">Center</option>
+			<option value="left">Left</option>
+			<option value="right">Right</option>
+			<option selected value="justify">Justify</option>
+			<!-- <option value="flex-tracking">Flex Tracking</option>
+			<option value="pad-tracking">Pad Tracking</option> -->
+		</select>
+	</div>
+
+	
+
+	<script src="../src/bowlcut.js"></script>
+	<script src="test.js"></script>
+</body>
+</html>
