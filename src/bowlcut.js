@@ -100,26 +100,22 @@
 				var charPaths = [],
 					charPathElems = [],
 					charGlyphs = [],
-					charAdvance = [],
+					charAdvances = [],
 					kerningValues = [],
 					fontSize = textPath.styles.fontSize || textPath.attributes.fontSize || 72,
 					textWidth = 0;
 
 				var glyphBehaviorAdjustments = {
-					tangent: function(pointA, lengthToPt, charElem){
-						var pointB = textPath.path.getPointAtLength(lengthToPt+0.01),
-							pointC = textPath.path.getPointAtLength(lengthToPt-0.01),
+					tangent: function(pointA, lengthToPt, charElem, charAdvance){
+						var pointB = textPath.getPointOnPath(lengthToPt+charAdvance),
 							secant = {
-								x: pointB.x - pointC.x,
-								y: pointB.y - pointC.y
+								x: pointB.x - pointA.x,
+								y: pointB.y - pointA.y
 							},
 							normal = {x: -secant.y, y: secant.x},
 							theta = Math.atan2(normal.y,normal.x)-Math.PI/2,
 							angle = 180 * (theta)/Math.PI;
 
-						if(textPath.pathReverse){
-							angle -= 180;
-						}
 						charElem.setAttribute(
 							'transform',
 							'translate('+(pointA.x).toFixed(textPath.precision)+
@@ -149,16 +145,11 @@
 						for(var j=0; j<textPath.text.length; j++){
 							var lengthOnPath = positionOffset + currentCharOffset;
 							var pointOnPath = textPath.getPointOnPath(lengthOnPath);
-							// setAttributes(charPathElems[j], {
-							// 	transform: 'translate('+(pointOnPath.x).toFixed(textPath.precision)+' '+(pointOnPath.y).toFixed(textPath.precision)+')'
-							// });
-							// textGroup.appendChild(charPathElems[j]);
-
-							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPathElems[j]);
+							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPathElems[j], charAdvances[j]);
 							textGroup.appendChild(charPathElems[j]);
 							
 							if(j < textPath.text.length-1){
-								currentCharOffset += charAdvance[j] + kerningValues[j];
+								currentCharOffset += charAdvances[j] + kerningValues[j];
 							}
 						}
 					},
@@ -176,10 +167,10 @@
 					charPathElems[i] = parsePathElement(charPaths[i]);
 					setAttributes(charPathElems[i], textPath.attributes);
 					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
-					charAdvance[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
+					charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
 					//add advance width
-					if(i < textPath.text.length-1 && i > 0){
-						textWidth += charAdvance[i];
+					if(i > 0){
+						textWidth += charAdvances[i];
 					}
 					//add kern for next char
 					if(i>0){
