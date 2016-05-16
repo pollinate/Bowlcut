@@ -10,8 +10,7 @@
 			hypothete 2016
 		*/
 
-	var Bowlcut = {},
-		domp = new DOMParser();
+	var Bowlcut = {};
 
 	Bowlcut.textBehaviors = [
 		'center', //text is center-aligned on the path
@@ -22,7 +21,6 @@
 
 	Bowlcut.glyphBehaviors = [
 		'tangent', //text width stays locked & glyph rotates to path's slope
-		'ribbon', //glyph stays upright, but becomes less wide with the slope
 		'upright' //glyph width stays locked & rotation is locked
 	];
 
@@ -108,13 +106,32 @@
 					textWidth = 0;
 
 				var glyphBehaviorAdjustments = {
-					tangent: function(){
-					},
-					ribbon: function(){
+					tangent: function(pointA, lengthToPt, charElem){
+						var pointB = textPath.path.getPointAtLength(lengthToPt+0.01),
+							pointC = textPath.path.getPointAtLength(lengthToPt-0.01),
+							secant = {
+								x: pointB.x - pointC.x,
+								y: pointB.y - pointC.y
+							},
+							normal = {x: -secant.y, y: secant.x},
+							theta = Math.atan2(normal.y,normal.x)-Math.PI/2,
+							angle = 180 * (theta)/Math.PI;
 
+						if(textPath.pathReverse){
+							angle -= 180;
+						}
+						charElem.setAttribute(
+							'transform',
+							'translate('+(pointA.x).toFixed(textPath.precision)+
+							' '+(pointA.y).toFixed(textPath.precision)+
+							') rotate('+(angle.toFixed(textPath.precision))+')');
 					},
-					upright: function(){
-						return; //nothing to see here
+					upright: function(pointA, lengthToPt, charElem){
+						charElem.setAttribute(
+							'transform',
+							'translate('+(pointA.x).toFixed(textPath.precision)+
+							' '+(pointA.y).toFixed(textPath.precision)+
+							')');
 					}
 				};
 
@@ -130,10 +147,14 @@
 						}
 
 						for(var j=0; j<textPath.text.length; j++){
-							var pointOnPath = textPath.getPointOnPath(positionOffset + currentCharOffset);
-							setAttributes(charPathElems[j], {
-								transform: 'translate('+(pointOnPath.x).toFixed(textPath.precision)+' '+(pointOnPath.y).toFixed(textPath.precision)+')'
-							});
+							var lengthOnPath = positionOffset + currentCharOffset;
+							var pointOnPath = textPath.getPointOnPath(lengthOnPath);
+							// setAttributes(charPathElems[j], {
+							// 	transform: 'translate('+(pointOnPath.x).toFixed(textPath.precision)+' '+(pointOnPath.y).toFixed(textPath.precision)+')'
+							// });
+							// textGroup.appendChild(charPathElems[j]);
+
+							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPathElems[j]);
 							textGroup.appendChild(charPathElems[j]);
 							
 							if(j < textPath.text.length-1){
