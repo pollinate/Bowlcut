@@ -1,375 +1,260 @@
-window.Bowlcut = function(){
+(function(){
+
 	'use strict';
 
-	/*
-		BOWLCUT.JS
-		v0.0.3
-		A library for generating text on SVG paths
-		outputs a group with styled & transformed text elements
-		hypothete 2015
-	*/
+		/*
+			BOWLCUT.JS
+			v0.0.4
+			A library for generating text on SVG paths
+			outputs a group with styled & transformed text elements
+			hypothete 2016
+		*/
 
-	var textBehaviors = [
-			'center', //text is center-aligned on the path
-			'left',
-			'right',
-			'justify', //text is evenly distributed along the path
-		//	'flex-tracking', //text is justified with only whitespace stretched
-		//	'pad-tracking' //text is justified, whitespace is distributed between inside the string and its beginning & end
-		],
+	var Bowlcut = {},
+		domp = new DOMParser();
 
-		glyphBehaviors = [
-			'tangent', //text width stays locked & glyph rotates to path's slope
-			'ribbon', //glyph stays upright, but becomes less wide with the slope
-			'upright' //glyph width stays locked & rotation is locked
-		],
+	Bowlcut.textBehaviors = [
+		'center', //text is center-aligned on the path
+		'left',
+		'right',
+		'justify', //text is evenly distributed along the path
+	];
 
-		bowlcut = {
-		//instance properties
+	Bowlcut.glyphBehaviors = [
+		'tangent', //text width stays locked & glyph rotates to path's slope
+		'ribbon', //glyph stays upright, but becomes less wide with the slope
+		'upright' //glyph width stays locked & rotation is locked
+	];
 
-		path: null,
-		pathLength: -1,
-		pathReverse: false,
+	Bowlcut.TextPath = function(){
+		var textPath = {
+			path: null,
+			pathLength: -1,
+			pathReverse: false,
 
-		text: '',
-		textAttributes: {},
-		textStyles: {
-			'text-anchor': 'middle'
-		},
-		textLength: -1,
-		padding: 0,
+			text: '',
+			styles: {},
+			attributes: {},
 
-		minBehavior: textBehaviors[3],
-		maxBehavior: textBehaviors[3],
-		glyphBehavior: glyphBehaviors[1],
+			minBehavior: Bowlcut.textBehaviors[0],
+			maxBehavior: Bowlcut.textBehaviors[3],
+			glyphBehavior: Bowlcut.glyphBehaviors[1],
 
-		precision: 3,
+			precision: 3,
 
-		uniqueId: Math.round(Math.random()*1024).toString(16),
+			uniqueId: Math.round(Math.random()*1024).toString(16),
+			font: null, //Opentype Font object
 
-		//methods
-		render: function(){
-			//returns a group node with positioned text elements
-
-			var textGroup = createSVGElement('g'),
-				placements = [],
-				glyphs = [],
-				glyphWidths = [];
-
-			textGroup.setAttribute('id', 'bowlcut-'+bowlcut.uniqueId);
-
-			//determine positions
-			var textBehaviorsToPlacements = {
-				center: function(/*leftOrRight*/){
-					var gradualTextLengths = [],
-						pointOnPath,
-						leftOrRight = arguments[0],
-						fullTextLength = measureText(bowlcut.text);
-					glyphs.forEach(function(gl, gInd){
-						var partialString = bowlcut.text.slice(0,gInd+1),
-							relativeGlyphPosition,
-							glyphLengthOnPath,
-							halfGlyphWidth = (glyphWidths[gInd]  + bowlcut.padding)/2,
-							textLengthBeforeGlyph = (gInd > 0? gradualTextLengths[gInd-1] : 0) + halfGlyphWidth;
-						gradualTextLengths.push(measureText(partialString));
-
-						if(leftOrRight === undefined){
-							relativeGlyphPosition = textLengthBeforeGlyph-0.5*fullTextLength;
-							glyphLengthOnPath = bowlcut.pathLength/2 + relativeGlyphPosition;
-						}
-						else if(leftOrRight === 'left'){
-							relativeGlyphPosition = textLengthBeforeGlyph;
-							glyphLengthOnPath = relativeGlyphPosition;
-						}
-						else if(leftOrRight === 'right'){
-							relativeGlyphPosition = textLengthBeforeGlyph-fullTextLength;
-							glyphLengthOnPath = bowlcut.pathLength + relativeGlyphPosition;
-						}
-						pointOnPath = bowlcut.get.pointOnPath(glyphLengthOnPath);
-						textGroup.appendChild(gl);
-						setAttributes(gl,{x: pointOnPath.x.toFixed(bowlcut.precision), y: pointOnPath.y.toFixed(bowlcut.precision)});
-						glyphBehaviorAdjustments[bowlcut.glyphBehavior](gl, bowlcut.pathReverse? (bowlcut.pathLength - glyphLengthOnPath) : glyphLengthOnPath, gInd);
-					});
-				},
-				left: function(){
-					textBehaviorsToPlacements.center('left');
-				},
-				right: function(){
-					textBehaviorsToPlacements.center('right');
-				},
-				justify: function(){
-					glyphs.forEach(function(gl, gInd){
-						var lengthToGlyph = bowlcut.pathLength*(gInd/(glyphs.length-1)),
-						pointOnPath = bowlcut.get.pointOnPath(lengthToGlyph);
-						textGroup.appendChild(gl);
-						setAttributes(gl,{x: pointOnPath.x.toFixed(bowlcut.precision), y: pointOnPath.y.toFixed(bowlcut.precision)});
-						glyphBehaviorAdjustments[bowlcut.glyphBehavior](gl, bowlcut.pathReverse? (bowlcut.pathLength - lengthToGlyph) : lengthToGlyph, gInd);
-					});
-				}
-				// ,
-				// 'flex-tracking': function(){
-				// 	var words = bowlcut.text.trim().split(/\s+/g);
-				// 	console.log(words);
-				// 	// glyphs.forEach(function(glyph, glIndex){
-
-				// 	// });
-
-				// },
-				// 'pad-tracking': function(){
-
-				// }
-			};
-
-			var glyphBehaviorAdjustments = {
-				tangent: function(glyphElem, glyphLength){
-					var pointA = bowlcut.path.getPointAtLength(Math.max(0, glyphLength-1)), //not adjusted on pathReverse, incoming metric is
-						pointB = bowlcut.path.getPointAtLength(glyphLength+1),
-						secant = {
-							x: pointB.x - pointA.x,
-							y: pointB.y - pointA.y
-						},
-						normal = {x: -secant.y, y: secant.x},
-						theta = Math.atan2(normal.y,normal.x)-Math.PI/2,
-						angle = 180 * (theta)/Math.PI;
-
-					if(bowlcut.pathReverse){
-						angle -= 180;
-					}
-					glyphElem.setAttribute('transform', 'rotate('+angle.toFixed(bowlcut.precision)+' '+pointA.x.toFixed(bowlcut.precision)+' '+pointA.y.toFixed(bowlcut.precision)+')');
-				},
-				ribbon: function(glyphElem, glyphLength, glInd){
-					var pointA = bowlcut.path.getPointAtLength(glyphLength-0.01),
-						pointB = bowlcut.path.getPointAtLength(glyphLength+0.01),
-						dPath = {x: pointB.x - pointA.x, y: pointB.y- pointA.y},
-						dot = dotProduct(normalize(dPath), {x:1, y:0}) || 0.01; //revisit for NaNs
-					glyphElem.setAttribute('textLength', Math.abs(glyphWidths[glInd]*dot).toFixed(bowlcut.precision));
-					glyphElem.setAttribute('lengthAdjust', 'spacingAndGlyphs');
-				},
-				upright: function(){
-					return; //nothing to see here
-				}
-			};
-
-			//generate glyphs
-			glyphs = bowlcut.text.split('').map(function(ch, chInd){
-				var charElem = createSVGElement('text');
-				charElem.textContent = ch;
-				setAttributes(charElem, bowlcut.textAttributes);
-				overwriteStyles(charElem, bowlcut.textStyles);
-				glyphWidths[chInd] = Math.max(measureText(ch), bowlcut.textStyles['font-size']? Number(bowlcut.textStyles['font-size'].replace(/\D+/,''))/4:4.5);
-				return charElem;
-			});
-
-			if(measureText(bowlcut.text) > bowlcut.pathLength){
-				textBehaviorsToPlacements[bowlcut.maxBehavior]();
-			}
-			else {
-				textBehaviorsToPlacements[bowlcut.minBehavior]();
-			}
-
-			return textGroup;
-		},
-
-		get: {
-			pointOnPath: function(length){
-				if(bowlcut.pathReverse) {
-					return bowlcut.path.getPointAtLength(bowlcut.pathLength - length);
-				}
-				else {
-					return bowlcut.path.getPointAtLength(length);
-				}
-			}
-		},
-
-		set: {
-			path: function(element /*reverse*/){
+			setPath: function(element, reverse){
 				//save the path & any metrics we need
-				bowlcut.path = element;
-				bowlcut.pathReverse = arguments[1] || false;
-				bowlcut.pathLength = element.getTotalLength();
-				return bowlcut;
+				textPath.path = element;
+				textPath.pathReverse = !!reverse;
+				textPath.pathLength = element.getTotalLength();
+				return textPath;
 			},
-			pathFromCircle: function(x, y, r, reverse, flipText){
-				bowlcut.path = createCirclePath(x,y,r, flipText);
-				bowlcut.pathReverse = reverse;
-				bowlcut.pathLength = bowlcut.path.getTotalLength();
-				return bowlcut;
+
+			setPathFromCircle: function(x, y, r, reverse, flipText){
+				textPath.path = createCirclePath(x,y,r, flipText);
+				textPath.pathReverse = reverse;
+				textPath.pathLength = textPath.path.getTotalLength();
+				return textPath;
 			},
-			pathFromArc: function(x, y, r, angle, upOrDown){
-				var startAngle, endAngle,lengthFlag;
+
+			setPathFromArc: function(x, y, r, angle, upOrDown){
+				var startAngle, endAngle;
 				if(upOrDown === 'up'){
 					startAngle = -angle/2;
 					endAngle = angle/2;
-					bowlcut.path = createArc(x,y,r,startAngle, endAngle,false);
-					bowlcut.pathReverse = false;
+					textPath.path = createArc(x,y,r,startAngle, endAngle,false);
+					textPath.pathReverse = false;
 				}
 				else {
 					startAngle = 180-angle/2;
 					endAngle = 180+angle/2;
-					bowlcut.path = createArc(x,y,r,startAngle, endAngle,true);
-					bowlcut.pathReverse = true;
+					textPath.path = createArc(x,y,r,startAngle, endAngle,true);
+					textPath.pathReverse = true;
 				}
 				
-				bowlcut.pathLength = bowlcut.path.getTotalLength();
-				return bowlcut;
+				textPath.pathLength = textPath.path.getTotalLength();
+				return textPath;
 			},
-			text: function(str){
-				bowlcut.text = str;
-				bowlcut.textLength = measureText(str);
-				return bowlcut;
-			},
-			styles: function(styleObj){
-				for(var st in styleObj){
-					bowlcut.textStyles[st] = styleObj[st];
+
+			getPointOnPath: function(length){
+				if(textPath.pathReverse) {
+					return textPath.path.getPointAtLength(textPath.pathLength - length);
 				}
-				return bowlcut;
-			},
-			attributes: function(attrObj){
-				for(var st in attrObj){
-					bowlcut.textAttributes[st] = attrObj[st];
+				else {
+					return textPath.path.getPointAtLength(length);
 				}
-				return bowlcut;
 			},
-			padding: function(pad){
-				bowlcut.padding = pad;
-				return bowlcut;
-			},
-			minBehavior: function(mb){
-				bowlcut.minBehavior = mb;
-				return bowlcut;
-			},
-			maxBehavior: function(mb){
-				bowlcut.maxBehavior = mb;
-				return bowlcut;
-			},
-			glyphBehavior: function(gb){
-				bowlcut.glyphBehavior = gb;
-				return bowlcut;
+
+			render: function(){
+				//returns a group node with positioned path elements
+
+				if(!textPath.font){
+					console.error('Font file is not loaded for path ' + textPath.uniqueId);
+					return;
+				}
+
+				var textGroup = createSVGElement('g');
+				textGroup.setAttribute('id', 'bowlcut-'+textPath.uniqueId);
+
+				var charPaths = [],
+					charPathElems = [],
+					charGlyphs = [],
+					charAdvance = [],
+					kerningValues = [],
+					fontSize = textPath.styles.fontSize || textPath.attributes.fontSize || 72,
+					textWidth = 0;
+
+				var glyphBehaviorAdjustments = {
+					tangent: function(){
+					},
+					ribbon: function(){
+
+					},
+					upright: function(){
+						return; //nothing to see here
+					}
+				};
+
+				var textBehaviorsToPlacements = {
+					center: function(offset){
+						var positionOffset = textPath.pathLength/2 - textWidth/2;
+						var currentCharOffset = 0;
+						if(offset && offset === 'left'){
+							positionOffset = 0;
+						}
+						else if(offset && offset === 'right'){
+							positionOffset = textPath.pathLength - textWidth;
+						}
+
+						for(var j=0; j<textPath.text.length; j++){
+							var pointOnPath = textPath.getPointOnPath(positionOffset + currentCharOffset);
+							setAttributes(charPathElems[j], {
+								transform: 'translate('+(pointOnPath.x).toFixed(textPath.precision)+' '+(pointOnPath.y).toFixed(textPath.precision)+')'
+							});
+							textGroup.appendChild(charPathElems[j]);
+							
+							if(j < textPath.text.length-1){
+								currentCharOffset += charAdvance[j] + kerningValues[j];
+							}
+						}
+					},
+					left: function(){
+						textBehaviorsToPlacements.center('left');
+					},
+					right: function(){
+						textBehaviorsToPlacements.center('right');
+					},
+					justify: function(){}
+				};
+
+				for(var i=0; i<textPath.text.length; i++){
+					charPaths[i] = textPath.font.getPath(textPath.text.charAt(i),0,0,fontSize);
+					charPathElems[i] = parsePathElement(charPaths[i]);
+					setAttributes(charPathElems[i], textPath.attributes);
+					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
+					charAdvance[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
+					//add advance width
+					if(i < textPath.text.length-1 && i > 0){
+						textWidth += charAdvance[i];
+					}
+					//add kern for next char
+					if(i>0){
+						kerningValues[i-1] = fontSize * textPath.font.getKerningValue(charGlyphs[i-1], charGlyphs[i]) / textPath.font.unitsPerEm;
+						textWidth += kerningValues[i-1];
+					}
+				}
+
+				//choose behavior based on path size. Do it as one string to include kerning values
+				if(textWidth > textPath.pathLength){
+					textBehaviorsToPlacements[textPath.maxBehavior]();
+				}
+				else{
+					textBehaviorsToPlacements[textPath.minBehavior]();
+				}
+
+				return textGroup;
 			}
+		};
+
+		return textPath;
+
+		function createSVGElement(elem){
+			return document.createElementNS('http://www.w3.org/2000/svg', elem);
+		}
+
+		function setAttributes(elem, attrObj){
+			for(var attr in attrObj){
+				elem.setAttribute(attr, attrObj[attr]);
+			}
+		}
+
+		function createCirclePath(x,y,r, flipText){
+			var path = createSVGElement('path'),
+				d;
+			if(!flipText){
+				d = 'M'+(x)+','+(y+r)+ ' a'+r+','+r+' 0 0,1 0,'+(-r*2)+' a'+r+','+r+' 0 0,1 0,'+(r*2);
+			}
+			else{
+				d = 'M'+(x)+','+(y-r)+ ' a'+r+','+r+' 0 0,0 0,'+(r*2)+' a'+r+','+r+' 0 0,0 0,'+(-r*2);
+			}
+			setAttributes(path, {
+				d:  d,
+				fill: 'none',
+				stroke: 'black'
+			});
+
+			return path;
+		}
+
+		function createArc(x,y,r,startAngle, endAngle){
+			var path = createSVGElement('path'),
+				startPoint = polarToCartesian(x,y,r,startAngle),
+				endPoint = polarToCartesian(x,y,r,endAngle),
+				d = [
+					'M', startPoint.x, startPoint.y,
+					'a', r, r, 0, 0, 1, endPoint.x-startPoint.x, endPoint.y-startPoint.y
+				].join(' ');
+
+			setAttributes(path, {
+				d:  d,
+				fill: 'none',
+				stroke: 'black'
+			});
+
+			return path;
+		}
+
+		function polarToCartesian(cx, cy, r, angle){
+			//based off http://stackoverflow.com/questions/5736398/how-to-calculate-the-svg-path-for-an-arc-of-a-circle
+			var angleToRads = (angle-90)*Math.PI/180,
+				coords = {
+					x: cx + r*Math.cos(angleToRads),
+					y: cy + r*Math.sin(angleToRads)
+				};
+				return coords;
+		}
+
+		function parsePathElement(pathElem, precision){
+			//returns a DOM node from the string
+			var pathNode = createSVGElement('path');
+			pathNode.setAttribute('d', pathElem.toPathData(precision));
+			return pathNode;
+		}
+
+		function getPathElemBounds(tPath){
+			var tempSvg = createSVGElement('svg');
+			document.body.appendChild(tempSvg);
+			tempSvg.appendChild(tPath);
+			var tBounds = tPath.getBBox();
+			document.body.removeChild(tempSvg);
+			return tBounds;
 		}
 	};
 
-	return bowlcut;
+	window.Bowlcut = Bowlcut;
 
-	//helper methods
+})();
 
-	function createSVGElement(elem){
-		return document.createElementNS('http://www.w3.org/2000/svg', elem);
-	}
-
-	function setAttributes(elem, attrObj){
-		for(var attr in attrObj){
-			elem.setAttribute(attr, attrObj[attr]);
-		}
-	}
-
-	function overwriteStyles(elem, styleObj){
-		var styleString = '';
-		for(var style in styleObj){
-			styleString += style + ': ' + styleObj[style] + '; ';
-		}
-		elem.setAttribute('style', styleString);
-	}
-
-	function measureText(str){
-		var tempSvg = createSVGElement('svg'),
-			tempText = createSVGElement('text'),
-			endsInWhitespace = false,
-			length = 0;
-		setAttributes(tempSvg, {
-			width: 1,
-			height: 1
-		});
-		overwriteStyles(tempSvg, {
-			position: 'absolute',
-			left: '-999px',
-			top: '-999px'
-		});
-
-		if(str.match(/\s$/) !== null){
-			//our string ends in whitespace that will be dropped
-			endsInWhitespace = true;
-			str+='.';
-			var withPeriodLength = measureText(str),
-				periodLength = measureText('.');
-				return withPeriodLength - periodLength;
-		}
-
-		tempText.textContent = str;
-		setAttributes(tempText, bowlcut.textAttributes);
-		overwriteStyles(tempText, bowlcut.textStyles);
-		document.body.appendChild(tempSvg);
-		tempSvg.appendChild(tempText);
-		length = tempText.getBBox().width;
-		length += bowlcut.padding * str.length;
-		document.body.removeChild(tempSvg);
-
-		if(endsInWhitespace){
-
-		}
-		return length;
-	}
-
-	function dotProduct(a, b){
-		return (a.x*b.x) + (a.y*b.y);
-	}
-
-	function normalize(a){
-		var magnitude = Math.sqrt(Math.pow(a.x,2) + Math.pow(a.y,2));
-		return {x: a.x/magnitude, y: a.y/magnitude};
-	}
-
-	//To be used for arc text generation
-	function createCirclePath(x,y,r, flipText){
-		var path = createSVGElement('path'),
-			d;
-		if(!flipText){
-			d = 'M'+(x)+','+(y+r)+ ' a'+r+','+r+' 0 0,1 0,'+(-r*2)+' a'+r+','+r+' 0 0,1 0,'+(r*2);
-		}
-		else{
-			d = 'M'+(x)+','+(y-r)+ ' a'+r+','+r+' 0 0,0 0,'+(r*2)+' a'+r+','+r+' 0 0,0 0,'+(-r*2);
-		}
-		setAttributes(path, {
-			d:  d,
-			fill: 'none',
-			stroke: 'black'
-		});
-
-		return path;
-	}
-
-	function createArc(x,y,r,startAngle, endAngle, flipText){
-		var path = createSVGElement('path'),
-			startPoint = polarToCartesian(x,y,r,startAngle),
-			endPoint = polarToCartesian(x,y,r,endAngle),
-			d = [
-				'M', startPoint.x, startPoint.y,
-				'a', r, r, 0, 0, 1, endPoint.x-startPoint.x, endPoint.y-startPoint.y
-			].join(' ');
-
-		setAttributes(path, {
-			d:  d,
-			fill: 'none',
-			stroke: 'black'
-		});
-
-		return path;
-	}
-
-	function polarToCartesian(cx, cy, r, angle){
-		//based off http://stackoverflow.com/questions/5736398/how-to-calculate-the-svg-path-for-an-arc-of-a-circle
-		var angleToRads = (angle-90)*Math.PI/180,
-			coords = {
-				x: cx + r*Math.cos(angleToRads),
-				y: cy + r*Math.sin(angleToRads)
-			};
-			return coords;
-	}
-
-	function sign(num){
-		if (num === 0 || isNaN(num)){
-			return num;
-		}
-		return num > 0 ? -1 : 1;
-	}
-};

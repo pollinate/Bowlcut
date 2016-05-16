@@ -1,55 +1,66 @@
-/*global Bowlcut*/
+(function(Bowlcut, opentype){
+	'use strict';
 
-'use strict';
+	var centerSVG = document.querySelector('#center-test'),
+		reverseSVG = document.querySelector('#reverse-test'),
+		circleSVG = document.querySelector('#circle-test'),
+		textInput = document.querySelector('input'),
+		glyphBehaviorSelect = document.querySelector('#glyphbehavior-select'),
+		minBehaviorSelect = document.querySelector('#minbehavior-select'),
+		maxBehaviorSelect = document.querySelector('#maxbehavior-select'),
+		centerCut = new Bowlcut.TextPath(),
+		reverseCut = new Bowlcut.TextPath(),
+		circleCut = new Bowlcut.TextPath(),
+		textPaths = [circleCut, centerCut, reverseCut];
 
-var centerSVG = document.querySelector('#center-test'),
-	reverseSVG = document.querySelector('#reverse-test'),
-	circleSVG = document.querySelector('#circle-test'),
-	textInput = document.querySelector('input'),
-	glyphBehaviorSelect = document.querySelector('#glyphbehavior-select'),
-	minBehaviorSelect = document.querySelector('#minbehavior-select'),
-	maxBehaviorSelect = document.querySelector('#maxbehavior-select'),
-	centerCut = new Bowlcut(),
-	reverseCut = new Bowlcut(),
-	circleCut = new Bowlcut(),
-	textPaths = [circleCut, centerCut, reverseCut]; 
+	centerCut.setPath(centerSVG.querySelector('path'), false);
+	reverseCut.setPath(reverseSVG.querySelector('path'), true);
+	circleCut.setPathFromArc(250,300,200,70,'up');
+	circleSVG.appendChild(circleCut.path);
 
-centerCut.set.path(centerSVG.querySelector('path'), false);
-reverseCut.set.path(reverseSVG.querySelector('path'), true);
-circleCut.set.pathFromArc(250,300,200,70,'up');
-circleSVG.appendChild(circleCut.path);
-
-textPaths.forEach(function(bc){
-	bc.set.text(textInput.value)
-	.set.styles({'font-size': '36px'})
-	.set.attributes({'dy': '0'})
-	.set.minBehavior(minBehaviorSelect.value)
-	.set.maxBehavior(maxBehaviorSelect.value)
-	.set.glyphBehavior(glyphBehaviorSelect.value);
-});
-
-redraw();
-
-function redraw(){
-
-	textPaths.forEach(function(bc){
-		var previousRender= document.querySelector('#bowlcut-'+bc.uniqueId);
-		if(previousRender){
-			previousRender.parentNode.removeChild(previousRender);
+	opentype.load('expressway-regular.otf', function(err, font){
+		if(err){
+			console.error(err);
 		}
-		bc.set.text(textInput.value)
-		.set.minBehavior(minBehaviorSelect.value)
-		.set.maxBehavior(maxBehaviorSelect.value)
-		.set.glyphBehavior(glyphBehaviorSelect.value);
-		var textToAppend = bc.render();
-		if(bc.uniqueId === centerCut.uniqueId){
-			centerSVG.appendChild(textToAppend);
-		}
-		else if(bc.uniqueId === reverseCut.uniqueId){
-			reverseSVG.appendChild(textToAppend);
-		}
-		else if(bc.uniqueId === circleCut.uniqueId){
-			circleSVG.appendChild(textToAppend);
+		else{
+			textPaths.forEach(function(tPath){
+				tPath.font = font;
+				tPath.attributes = {
+					fill: 'red',
+					fontSize: 36
+				};
+			});
+
+			redraw();
+
+			glyphBehaviorSelect.onchange = redraw;
+			minBehaviorSelect.onchange = redraw;
+			maxBehaviorSelect.onchange = redraw;
+			textInput.oninput = redraw;
 		}
 	});
-}
+
+	function redraw(){
+
+		textPaths.forEach(function(tPath){
+			var previousRender= document.querySelector('#bowlcut-'+tPath.uniqueId);
+			if(previousRender){
+				previousRender.parentNode.removeChild(previousRender);
+			}
+			tPath.text = textInput.value;
+			tPath.minBehavior = minBehaviorSelect.value;
+			tPath.maxBehavior = maxBehaviorSelect.value;
+			tPath.glyphBehavior = glyphBehaviorSelect.value;
+			var pathsToAppend = tPath.render();
+			if(tPath.uniqueId === centerCut.uniqueId){
+				centerSVG.appendChild(pathsToAppend);
+			}
+			else if(tPath.uniqueId === reverseCut.uniqueId){
+				reverseSVG.appendChild(pathsToAppend);
+			}
+			else if(tPath.uniqueId === circleCut.uniqueId){
+				circleSVG.appendChild(pathsToAppend);
+			}
+		});
+	}
+})(window.Bowlcut, window.opentype);

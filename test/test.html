@@ -25,36 +25,33 @@
 	</div>
 
 	<div id="controls">
-		<input type="text" placeholder="bowlcut.js" oninput="redraw()" value="bowlcut.js bowlcut.js"/>
+		<input type="text" placeholder="bowlcut.js" value="bowlcut.js bowlcut.js"/>
 
-		<select id="glyphbehavior-select" onchange="redraw()">
+		<select id="glyphbehavior-select">
 			<option value="upright">Upright</option>
 			<option selected value="tangent">Tangent</option>
 			<option value="ribbon">Ribbon</option>
 		</select>
 
-		<select id="minbehavior-select" onchange="redraw()">
+		<select id="minbehavior-select">
 			<option selected value="center">Center</option>
 			<option value="left">Left</option>
 			<option value="right">Right</option>
 			<option value="justify">Justify</option>
-			<!-- <option value="flex-tracking">Flex Tracking</option>
-			<option value="pad-tracking">Pad Tracking</option> -->
 		</select>
 
-		<select id="maxbehavior-select" onchange="redraw()">
+		<select id="maxbehavior-select">
 			<option value="center">Center</option>
 			<option value="left">Left</option>
 			<option value="right">Right</option>
 			<option selected value="justify">Justify</option>
-			<!-- <option value="flex-tracking">Flex Tracking</option>
-			<option value="pad-tracking">Pad Tracking</option> -->
 		</select>
 	</div>
 
 	
 
 	<script src="../src/bowlcut.js"></script>
+	<script src="../node_modules/opentype.js/dist/opentype.js"></script>
 	<script src="test.js"></script>
 </body>
 </html>
