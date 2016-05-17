@@ -15,7 +15,7 @@
 
 	centerCut.setPath(centerSVG.querySelector('path'), false);
 	reverseCut.setPath(reverseSVG.querySelector('path'), true);
-	circleCut.setPathFromArc(250,300,200,70,'up');
+	circleCut.setPathFromArc(250,-100,200,70,'down');
 	circleSVG.appendChild(circleCut.path);
 
 	opentype.load('expressway-regular.otf', function(err, font){
@@ -27,7 +27,9 @@
 				tPath.font = font;
 				tPath.attributes = {
 					fill: 'red',
-					fontSize: 36
+					fontSize: 36,
+					stroke: 'green',
+					strokeWidth: 3
 				};
 			});
 

@@ -176,6 +176,7 @@
 					charPaths[i] = textPath.font.getPath(textPath.text.charAt(i),0,0,fontSize);
 					charPathElems[i] = parsePathElement(charPaths[i]);
 					setAttributes(charPathElems[i], textPath.attributes);
+					setStyles(charPathElems[i], textPath.styles);
 					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
 					charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
 					//add advance width
@@ -210,6 +211,12 @@
 		function setAttributes(elem, attrObj){
 			for(var attr in attrObj){
 				elem.setAttribute(attr, attrObj[attr]);
+			}
+		}
+
+		function setStyles(elem, styleObj){
+			for(var style in styleObj){
+				elem.styles[style] = styleObj[style];
 			}
 		}
 
