@@ -145,8 +145,11 @@
 						for(var j=0; j<textPath.text.length; j++){
 							var lengthOnPath = positionOffset + currentCharOffset;
 							var pointOnPath = textPath.getPointOnPath(lengthOnPath);
-							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPathElems[j], charAdvances[j]);
-							textGroup.appendChild(charPathElems[j]);
+
+							if(charPathElems[j].getAttribute('d').length){
+								glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPathElems[j], charAdvances[j]);
+								textGroup.appendChild(charPathElems[j]);
+							}
 							
 							if(j < textPath.text.length-1){
 								currentCharOffset += charAdvances[j] + kerningValues[j];
@@ -159,7 +162,14 @@
 					right: function(){
 						textBehaviorsToPlacements.center('right');
 					},
-					justify: function(){}
+					justify: function(){
+						for(var j=0; j<textPath.text.length; j++){
+							var currentCharOffset =  textPath.pathLength*j/textPath.text.length;
+							var pointOnPath = textPath.getPointOnPath(currentCharOffset);
+							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentCharOffset, charPathElems[j], charAdvances[j]);
+							textGroup.appendChild(charPathElems[j]);
+						}
+					}
 				};
 
 				for(var i=0; i<textPath.text.length; i++){
@@ -179,7 +189,7 @@
 					}
 				}
 
-				//choose behavior based on path size. Do it as one string to include kerning values
+				//choose behavior based on path size
 				if(textWidth > textPath.pathLength){
 					textBehaviorsToPlacements[textPath.maxBehavior]();
 				}
