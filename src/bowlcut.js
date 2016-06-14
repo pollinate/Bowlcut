@@ -101,6 +101,7 @@
 					charPathElems = [],
 					charGlyphs = [],
 					charAdvances = [],
+					charWidths = [],
 					kerningValues = [],
 					fontSize = textPath.styles.fontSize || textPath.attributes.fontSize || 72,
 					textWidth = 0;
@@ -163,8 +164,10 @@
 						textBehaviorsToPlacements.center('right');
 					},
 					justify: function(){
+						var lastCharAdvance = charAdvances[charPathElems.length-1];
+						var justifiedDist = textPath.pathLength - lastCharAdvance;
 						for(var j=0; j<textPath.text.length; j++){
-							var currentCharOffset =  textPath.pathLength*j/textPath.text.length;
+							var currentCharOffset = justifiedDist*(textPath.text.length > 1? j/(textPath.text.length-1) : 1);
 							var pointOnPath = textPath.getPointOnPath(currentCharOffset);
 							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentCharOffset, charPathElems[j], charAdvances[j]);
 							textGroup.appendChild(charPathElems[j]);
@@ -179,6 +182,7 @@
 					setStyles(charPathElems[i], textPath.styles);
 					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
 					charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
+					charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / textPath.font.unitsPerEm;
 					//add advance width
 					if(i > 0){
 						textWidth += charAdvances[i];
