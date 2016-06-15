@@ -29,7 +29,7 @@
 			path: null,
 			pathLength: -1,
 			pathReverse: false,
-
+			curves: true,
 			text: '',
 			styles: {},
 			attributes: {},
@@ -177,7 +177,7 @@
 
 				for(var i=0; i<textPath.text.length; i++){
 					charPaths[i] = textPath.font.getPath(textPath.text.charAt(i),0,0,fontSize);
-					charPathElems[i] = parsePathElement(charPaths[i]);
+					charPathElems[i] = parsePathElement(charPaths[i], textPath.precision, true);
 					setAttributes(charPathElems[i], textPath.attributes);
 					setStyles(charPathElems[i], textPath.styles);
 					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
@@ -270,9 +270,15 @@
 				return coords;
 		}
 
-		function parsePathElement(pathElem, precision){
+		function parsePathElement(pathElem, precision, noCurves){
 			//returns a DOM node from the string
+			noCurves = noCurves || false;
 			var pathNode = createSVGElement('path');
+			if(noCurves){
+				//quick and dirty sample count, a better method would be this:
+				// http://www.antigrain.com/research12/adaptive_bezier/index.html
+				reducePathToLines(pathElem, Math.pow(5,precision));
+			}
 			pathNode.setAttribute('d', pathElem.toPathData(precision));
 			return pathNode;
 		}
@@ -284,6 +290,106 @@
 			var tBounds = tPath.getBBox();
 			document.body.removeChild(tempSvg);
 			return tBounds;
+		}
+
+		function pointOnCubicBezier(points, t){
+			if(points.length == 1) {
+				return points[0];
+			}
+			else {
+				var newpoints = [];
+				for(var i=0; i<points.length-1; i++){
+					var newpt = {};
+					newpt.x = (1-t) * points[i].x + t * points[i+1].x;
+					newpt.y = (1-t) * points[i].y + t * points[i+1].y;
+					newpoints.push(newpt);
+				}
+				return pointOnCubicBezier(newpoints,t);
+			}
+		}
+
+		function reducePathToLines(openPath, maxCurvePts){
+			var activeX = 0,
+				activeY = 0,
+				finalCommandList = [];
+
+			var cmdHandler = {
+				M: function(cmd){
+					activeX = cmd.x;
+					activeY = cmd.y;
+					finalCommandList.push(cmd);
+				},
+				L: function(cmd){
+					var cmdLength = measureCommandLength(activeX, activeY, cmd);
+					var numSteps = Math.min(cmdLength, maxCurvePts);
+					for(var i=0; i<numSteps; i++){
+						var midX = lerp(activeX, cmd.x, i/numSteps);
+						var midY = lerp(activeY, cmd.y, i/numSteps);
+						finalCommandList.push({type: 'L', x: midX, y: midY});
+						activeX = midX;
+						activeY = midY;
+					}
+				},
+				C: function(cmd){
+					var curvePoints = [
+						{x: activeX, y: activeY},
+						{x: cmd.x1, y: cmd.y1},
+						{x: cmd.x2, y: cmd.y2},
+						{x: cmd.x, y: cmd.y}
+					];
+					var cmdLength = measureCommandLength(activeX, activeY, cmd);
+					var numSteps = Math.min(cmdLength, maxCurvePts);
+
+					for(var i=0; i<numSteps; i++){
+						var newPt = pointOnCubicBezier(curvePoints, i/numSteps);
+						var newCmd = {type: 'L', x: newPt.x, y: newPt.y};
+						activeX = newCmd.x;
+						activeY = newCmd.y;
+						finalCommandList.push(newCmd);
+					}
+				},
+				Q: function(cmd){
+					return cmdHandler.C({
+						type: 'C',
+						x1: activeX + 2/3 *(cmd.x1-activeX),
+						y1: activeY + 2/3 *(cmd.y1-activeY),
+						x2: cmd.x + 2/3 *(cmd.x1-cmd.x),
+						y2: cmd.y + 2/3 *(cmd.y1-cmd.y),
+						x:cmd.x,
+						y:cmd.y
+					});
+				},
+				Z: function(cmd){
+					finalCommandList.push(cmd);
+				}
+			};
+
+			openPath.commands.forEach(function(cmd){
+				cmdHandler[cmd.type](cmd);
+			});
+
+			openPath.commands = finalCommandList;
+			return openPath;
+		}
+
+		function measureCommandLength(startX, startY, cmd){
+			var pathString = 'M' + startX + ' ' + startY + ', ' + cmd.type;
+			var pt1 = (cmd.x1? (cmd.x1 + ' ' + cmd.y1) : '');
+			var pt2 = (cmd.x2? (cmd.x2 + ' ' + cmd.y2) : '');
+			var ptEnd = cmd.x + ' ' + cmd.y;
+			if(pt1.length){
+				pathString += pt1 + ', ' + pt2 + ', ' + ptEnd;
+			}
+			else{
+				pathString += ptEnd;
+			}
+			var pathElem = createSVGElement('path');
+			pathElem.setAttribute('d', pathString);
+			return pathElem.getTotalLength();
+		}
+
+		function lerp(a, b, t){
+			return (1-t)*a + t*b;
 		}
 	};
 
