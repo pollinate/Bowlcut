@@ -203,6 +203,125 @@
 				}
 
 				return textGroup;
+			},
+
+			renderToPathCommands: function(){
+				//returns an array of path commands for an unstyled path element
+				var cmds = [];
+
+				if(!textPath.font){
+					console.error('Font file is not loaded for path ' + textPath.uniqueId);
+					return;
+				}
+
+				var charPaths = [],
+					charGlyphs = [],
+					charAdvances = [],
+					charWidths = [],
+					kerningValues = [],
+					fontSize = textPath.styles.fontSize || textPath.attributes.fontSize || 72,
+					textWidth = 0;
+
+				var glyphBehaviorAdjustments = {
+					tangent: function(pointA, lengthToPt, openPath, charAdvance){
+						var pointB = textPath.getPointOnPath(lengthToPt+charAdvance),
+							secant = {
+								x: pointB.x - pointA.x,
+								y: pointB.y - pointA.y
+							},
+							normal = {x: -secant.y, y: secant.x},
+							theta = Math.atan2(normal.y,normal.x)-Math.PI/2;
+
+						openPath.commands.forEach(function(pathCmd){
+							if('ML'.indexOf(pathCmd.type)>-1){
+								//rotate
+								pathCmd.x = pathCmd.x * Math.cos(theta) - pathCmd.y * Math.sin(theta);
+								pathCmd.y = pathCmd.y * Math.cos(theta) + pathCmd.x * Math.sin(theta);
+								//translate
+								pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(textPath.precision));
+								pathCmd.y = Number((pathCmd.y+pointA.y).toFixed(textPath.precision));
+							}
+						});
+					},
+					upright: function(pointA, lengthToPt, openPath){
+
+						openPath.commands.forEach(function(pathCmd){
+							if('ML'.indexOf(pathCmd.type)>-1){
+								pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(textPath.precision));
+								pathCmd.y = Number((pathCmd.y+pointA.y).toFixed(textPath.precision));
+							}
+						});
+					}
+				};
+
+				var textBehaviorsToPlacements = {
+					center: function(offset){
+						var positionOffset = textPath.pathLength/2 - textWidth/2;
+						var currentCharOffset = 0;
+						if(offset && offset === 'left'){
+							positionOffset = 0;
+						}
+						else if(offset && offset === 'right'){
+							positionOffset = textPath.pathLength - textWidth;
+						}
+
+						for(var j=0; j<textPath.text.length; j++){
+							var lengthOnPath = positionOffset + currentCharOffset;
+							var pointOnPath = textPath.getPointOnPath(lengthOnPath);
+
+							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPaths[j], charAdvances[j]);
+
+							if(j < textPath.text.length-1){
+								currentCharOffset += charAdvances[j] + kerningValues[j];
+							}
+						}
+					},
+					left: function(){
+						textBehaviorsToPlacements.center('left');
+					},
+					right: function(){
+						textBehaviorsToPlacements.center('right');
+					},
+					justify: function(){
+						var lastCharAdvance = charAdvances[charPaths.length-1];
+						var justifiedDist = textPath.pathLength - lastCharAdvance;
+						for(var j=0; j<textPath.text.length; j++){
+							var currentCharOffset = justifiedDist*(textPath.text.length > 1? j/(textPath.text.length-1) : 1);
+							var pointOnPath = textPath.getPointOnPath(currentCharOffset);
+							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentCharOffset, charPaths[j], charAdvances[j]);
+						}
+					}
+				};
+
+				for(var i=0; i<textPath.text.length; i++){
+					charPaths[i] = textPath.font.getPath(textPath.text.charAt(i),0,0,fontSize);
+					reducePathToLines(charPaths[i], Math.pow(5,textPath.precision));
+
+					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
+					charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
+					charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / textPath.font.unitsPerEm;
+					//add advance width
+					if(i > 0){
+						textWidth += charAdvances[i];
+					}
+					//add kern for next char
+					if(i>0){
+						kerningValues[i-1] = fontSize * textPath.font.getKerningValue(charGlyphs[i-1], charGlyphs[i]) / textPath.font.unitsPerEm;
+						textWidth += kerningValues[i-1];
+					}
+				}
+
+				//choose behavior based on path size
+				if(textWidth > textPath.pathLength){
+					textBehaviorsToPlacements[textPath.maxBehavior]();
+				}
+				else{
+					textBehaviorsToPlacements[textPath.minBehavior]();
+				}
+				charPaths.forEach(function(charPath){
+					cmds = cmds.concat(charPath.commands);
+				});
+				return cmds;
 			}
 		};
 
