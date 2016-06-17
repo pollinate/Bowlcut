@@ -126,7 +126,7 @@
 					upright: function(pointA, lengthToPt, openPath, charAdvance, charWidth){
 						openPath.commands.forEach(function(pathCmd){
 							if('ML'.indexOf(pathCmd.type)>-1){
-								pathCmd.x = Number((pointA.x+pathCmd.x-charWidth/2).toFixed(textPath.precision));
+								pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(textPath.precision));
 								pathCmd.y = Number((pathCmd.y+pointA.y).toFixed(textPath.precision));
 							}
 						});
@@ -177,7 +177,7 @@
 									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], charAdvances[j], charWidths[j]);
 								}
 								if(j < textPath.text.length-2){
-									currentPathOffset += widthScale*(charAdvances[j]-kerningValues[j]);
+									currentPathOffset += widthScale*(charAdvances[j]+kerningValues[j]);
 								}
 								else{
 									currentPathOffset += widthScale*charAdvances[j];
@@ -197,7 +197,7 @@
 									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], widthScale*charAdvances[j], widthScale*charWidths[j]);
 								}
 								if(j < textPath.text.length-2){
-									currentPathOffset += widthScale*(charAdvances[j]-kerningValues[j]);
+									currentPathOffset += widthScale*(charAdvances[j]+kerningValues[j]);
 								}
 								else{
 									currentPathOffset += widthScale*charAdvances[j];
@@ -214,11 +214,16 @@
 					reducePathToLines(charPaths[i], Math.pow(5,textPath.precision));
 					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
 					charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
-					charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / textPath.font.unitsPerEm;
+					if(charGlyphs[i].xMax){
+						charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / textPath.font.unitsPerEm;
+					}
+					else{
+						charWidths[i] = getPathElemBounds(parsePathElement(charPaths[i],2,true)).width;
+					}
 				}
 
 				if(textPath.text.length > 1){
-					for(var i=0; i<textPath.text.length-2; i++){
+					for(var i=0; i<textPath.text.length-1; i++){
 						//second pass for kerns
 						kerningValues[i] = fontSize * textPath.font.getKerningValue(charGlyphs[i], charGlyphs[i+1]) / textPath.font.unitsPerEm;
 					}
