@@ -29,7 +29,6 @@
 			path: null,
 			pathLength: -1,
 			pathReverse: false,
-			curves: true,
 			text: '',
 			styles: {},
 			attributes: {},
@@ -103,8 +102,8 @@
 					textWidth = 0;
 
 				var glyphBehaviorAdjustments = {
-					tangent: function(pointA, lengthToPt, openPath, charAdvance, charWidth){
-						var pointB = textPath.getPointOnPath(lengthToPt+charAdvance),
+					tangent: function(pointA, lengthToPt, openPath, charAdvance){
+						var pointB = textPath.getPointOnPath(Math.min(textPath.pathLength-0.01, lengthToPt+charAdvance+0.01)),
 							secant = {
 								x: pointB.x - pointA.x,
 								y: pointB.y - pointA.y
@@ -115,15 +114,15 @@
 						openPath.commands.forEach(function(pathCmd){
 							if('ML'.indexOf(pathCmd.type)>-1){
 								//rotate
-								pathCmd.x = pathCmd.x * Math.cos(theta) - pathCmd.y * Math.sin(theta);
-								pathCmd.y = pathCmd.y * Math.cos(theta) + pathCmd.x * Math.sin(theta);
+								var newX = pathCmd.x * Math.cos(theta) - pathCmd.y * Math.sin(theta);
+								var newY = pathCmd.y * Math.cos(theta) + pathCmd.x * Math.sin(theta);
 								//translate
-								pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(textPath.precision));
-								pathCmd.y = Number((pathCmd.y+pointA.y).toFixed(textPath.precision));
+								pathCmd.x = Number((newX+pointA.x).toFixed(textPath.precision));
+								pathCmd.y = Number((newY+pointA.y).toFixed(textPath.precision));
 							}
 						});
 					},
-					upright: function(pointA, lengthToPt, openPath, charAdvance, charWidth){
+					upright: function(pointA, lengthToPt, openPath, charAdvance){
 						openPath.commands.forEach(function(pathCmd){
 							if('ML'.indexOf(pathCmd.type)>-1){
 								pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(textPath.precision));
@@ -207,7 +206,7 @@
 					}
 				};
 
-				textWidth = getPathElemBounds(parsePathElement(textPath.font.getPath(textPath.text,0,0,fontSize),2,true)).width;
+				textWidth = getPathElemBounds(parsePathElement(textPath.font.getPath(textPath.text,0,0,fontSize),2)).width;
 
 				for(var i=0; i<textPath.text.length; i++){
 					charPaths[i] = textPath.font.getPath(textPath.text.charAt(i),0,0,fontSize);
@@ -218,7 +217,7 @@
 						charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / textPath.font.unitsPerEm;
 					}
 					else{
-						charWidths[i] = getPathElemBounds(parsePathElement(charPaths[i],2,true)).width;
+						charWidths[i] = getPathElemBounds(parsePathElement(charPaths[i],2)).width;
 					}
 				}
 
@@ -330,15 +329,12 @@
 				return coords;
 		}
 
-		function parsePathElement(pathElem, precision, noCurves){
+		function parsePathElement(pathElem, precision){
 			//returns a DOM node from the string
-			noCurves = noCurves || false;
 			var pathNode = createSVGElement('path');
-			if(noCurves){
-				//quick and dirty sample count, a better method would be this:
-				// http://www.antigrain.com/research12/adaptive_bezier/index.html
-				reducePathToLines(pathElem, Math.pow(5,precision));
-			}
+			//quick and dirty sample count, a better method would be this:
+			// http://www.antigrain.com/research12/adaptive_bezier/index.html
+			reducePathToLines(pathElem, Math.pow(5,precision));
 			pathNode.setAttribute('d', pathElem.toPathData(precision));
 			return pathNode;
 		}
