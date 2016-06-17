@@ -86,128 +86,8 @@
 				}
 			},
 
-			render: function(){
-				//returns a group node with positioned path elements
-
-				if(!textPath.font){
-					console.error('Font file is not loaded for path ' + textPath.uniqueId);
-					return;
-				}
-
-				var textGroup = createSVGElement('g');
-				textGroup.setAttribute('id', 'bowlcut-'+textPath.uniqueId);
-
-				var charPaths = [],
-					charPathElems = [],
-					charGlyphs = [],
-					charAdvances = [],
-					charWidths = [],
-					kerningValues = [],
-					fontSize = textPath.styles.fontSize || textPath.attributes.fontSize || 72,
-					textWidth = 0;
-
-				var glyphBehaviorAdjustments = {
-					tangent: function(pointA, lengthToPt, charElem, charAdvance){
-						var pointB = textPath.getPointOnPath(lengthToPt+charAdvance),
-							secant = {
-								x: pointB.x - pointA.x,
-								y: pointB.y - pointA.y
-							},
-							normal = {x: -secant.y, y: secant.x},
-							theta = Math.atan2(normal.y,normal.x)-Math.PI/2,
-							angle = 180 * (theta)/Math.PI;
-
-						charElem.setAttribute(
-							'transform',
-							'translate('+(pointA.x).toFixed(textPath.precision)+
-							' '+(pointA.y).toFixed(textPath.precision)+
-							') rotate('+(angle.toFixed(textPath.precision))+')');
-					},
-					upright: function(pointA, lengthToPt, charElem){
-						charElem.setAttribute(
-							'transform',
-							'translate('+(pointA.x).toFixed(textPath.precision)+
-							' '+(pointA.y).toFixed(textPath.precision)+
-							')');
-					}
-				};
-
-				var textBehaviorsToPlacements = {
-					center: function(offset){
-						var positionOffset = textPath.pathLength/2 - textWidth/2;
-						var currentCharOffset = 0;
-						if(offset && offset === 'left'){
-							positionOffset = 0;
-						}
-						else if(offset && offset === 'right'){
-							positionOffset = textPath.pathLength - textWidth;
-						}
-
-						for(var j=0; j<textPath.text.length; j++){
-							var lengthOnPath = positionOffset + currentCharOffset;
-							var pointOnPath = textPath.getPointOnPath(lengthOnPath);
-
-							if(charPathElems[j].getAttribute('d').length){
-								glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPathElems[j], charAdvances[j]);
-								textGroup.appendChild(charPathElems[j]);
-							}
-							
-							if(j < textPath.text.length-1){
-								currentCharOffset += charAdvances[j] + kerningValues[j];
-							}
-						}
-					},
-					left: function(){
-						textBehaviorsToPlacements.center('left');
-					},
-					right: function(){
-						textBehaviorsToPlacements.center('right');
-					},
-					justify: function(){
-						var lastCharAdvance = charAdvances[charPathElems.length-1];
-						var justifiedDist = textPath.pathLength - lastCharAdvance;
-						for(var j=0; j<textPath.text.length; j++){
-							var currentCharOffset = justifiedDist*(textPath.text.length > 1? j/(textPath.text.length-1) : 1);
-							var pointOnPath = textPath.getPointOnPath(currentCharOffset);
-							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentCharOffset, charPathElems[j], charAdvances[j]);
-							textGroup.appendChild(charPathElems[j]);
-						}
-					}
-				};
-
-				for(var i=0; i<textPath.text.length; i++){
-					charPaths[i] = textPath.font.getPath(textPath.text.charAt(i),0,0,fontSize);
-					charPathElems[i] = parsePathElement(charPaths[i], textPath.precision, true);
-					setAttributes(charPathElems[i], textPath.attributes);
-					setStyles(charPathElems[i], textPath.styles);
-					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
-					charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
-					charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / textPath.font.unitsPerEm;
-					//add advance width
-					if(i > 0){
-						textWidth += charAdvances[i];
-					}
-					//add kern for next char
-					if(i>0){
-						kerningValues[i-1] = fontSize * textPath.font.getKerningValue(charGlyphs[i-1], charGlyphs[i]) / textPath.font.unitsPerEm;
-						textWidth += kerningValues[i-1];
-					}
-				}
-
-				//choose behavior based on path size
-				if(textWidth > textPath.pathLength){
-					textBehaviorsToPlacements[textPath.maxBehavior]();
-				}
-				else{
-					textBehaviorsToPlacements[textPath.minBehavior]();
-				}
-
-				return textGroup;
-			},
-
-			renderToPathCommands: function(){
+			renderToPaths: function(){
 				//returns an array of path commands for an unstyled path element
-				var cmds = [];
 
 				if(!textPath.font){
 					console.error('Font file is not loaded for path ' + textPath.uniqueId);
@@ -223,7 +103,7 @@
 					textWidth = 0;
 
 				var glyphBehaviorAdjustments = {
-					tangent: function(pointA, lengthToPt, openPath, charAdvance){
+					tangent: function(pointA, lengthToPt, openPath, charAdvance, charWidth){
 						var pointB = textPath.getPointOnPath(lengthToPt+charAdvance),
 							secant = {
 								x: pointB.x - pointA.x,
@@ -243,11 +123,10 @@
 							}
 						});
 					},
-					upright: function(pointA, lengthToPt, openPath){
-
+					upright: function(pointA, lengthToPt, openPath, charAdvance, charWidth){
 						openPath.commands.forEach(function(pathCmd){
 							if('ML'.indexOf(pathCmd.type)>-1){
-								pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(textPath.precision));
+								pathCmd.x = Number((pointA.x+pathCmd.x-charWidth/2).toFixed(textPath.precision));
 								pathCmd.y = Number((pathCmd.y+pointA.y).toFixed(textPath.precision));
 							}
 						});
@@ -269,7 +148,7 @@
 							var lengthOnPath = positionOffset + currentCharOffset;
 							var pointOnPath = textPath.getPointOnPath(lengthOnPath);
 
-							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPaths[j], charAdvances[j]);
+							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, lengthOnPath, charPaths[j], charAdvances[j], charWidths[j]);
 
 							if(j < textPath.text.length-1){
 								currentCharOffset += charAdvances[j] + kerningValues[j];
@@ -283,31 +162,65 @@
 						textBehaviorsToPlacements.center('right');
 					},
 					justify: function(){
-						var lastCharAdvance = charAdvances[charPaths.length-1];
-						var justifiedDist = textPath.pathLength - lastCharAdvance;
-						for(var j=0; j<textPath.text.length; j++){
-							var currentCharOffset = justifiedDist*(textPath.text.length > 1? j/(textPath.text.length-1) : 1);
-							var pointOnPath = textPath.getPointOnPath(currentCharOffset);
-							glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentCharOffset, charPaths[j], charAdvances[j]);
+						var widthScale = textPath.pathLength/textWidth;
+						var currentPathOffset = 0;
+
+						if(widthScale >= 1){
+							//path is longer than rendered text, just spread out characters
+							console.log('spread: ', textPath.text);
+							for(var j=0; j<textPath.text.length; j++){
+								var pointOnPath = textPath.getPointOnPath(currentPathOffset);
+								if(j===0){
+									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], 0,0);
+								}
+								else{
+									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], charAdvances[j], charWidths[j]);
+								}
+								if(j < textPath.text.length-2){
+									currentPathOffset += widthScale*(charAdvances[j]-kerningValues[j]);
+								}
+								else{
+									currentPathOffset += widthScale*charAdvances[j];
+								}
+							}
+						}
+						else{
+							//path is shorter than string, scale down chars to fit
+							console.log('scale down: ', textPath.text);
+							for(var j=0; j<textPath.text.length; j++){
+								var pointOnPath = textPath.getPointOnPath(currentPathOffset);
+								scaleReducedPath(charPaths[j],widthScale, 1);
+								if(j===0){
+									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], 0,0);
+								}
+								else{
+									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], widthScale*charAdvances[j], widthScale*charWidths[j]);
+								}
+								if(j < textPath.text.length-2){
+									currentPathOffset += widthScale*(charAdvances[j]-kerningValues[j]);
+								}
+								else{
+									currentPathOffset += widthScale*charAdvances[j];
+								}
+							}
 						}
 					}
 				};
 
+				textWidth = getPathElemBounds(parsePathElement(textPath.font.getPath(textPath.text,0,0,fontSize),2,true)).width;
+
 				for(var i=0; i<textPath.text.length; i++){
 					charPaths[i] = textPath.font.getPath(textPath.text.charAt(i),0,0,fontSize);
 					reducePathToLines(charPaths[i], Math.pow(5,textPath.precision));
-
 					charGlyphs[i] = textPath.font.charToGlyph(textPath.text.charAt(i));
 					charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / textPath.font.unitsPerEm;
 					charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / textPath.font.unitsPerEm;
-					//add advance width
-					if(i > 0){
-						textWidth += charAdvances[i];
-					}
-					//add kern for next char
-					if(i>0){
-						kerningValues[i-1] = fontSize * textPath.font.getKerningValue(charGlyphs[i-1], charGlyphs[i]) / textPath.font.unitsPerEm;
-						textWidth += kerningValues[i-1];
+				}
+
+				if(textPath.text.length > 1){
+					for(var i=0; i<textPath.text.length-2; i++){
+						//second pass for kerns
+						kerningValues[i] = fontSize * textPath.font.getKerningValue(charGlyphs[i], charGlyphs[i+1]) / textPath.font.unitsPerEm;
 					}
 				}
 
@@ -318,10 +231,33 @@
 				else{
 					textBehaviorsToPlacements[textPath.minBehavior]();
 				}
+
+				return charPaths;
+			},
+
+			renderToPathCommands: function(){
+				var charPaths = textPath.renderToPaths();
+				var cmds = [];
 				charPaths.forEach(function(charPath){
 					cmds = cmds.concat(charPath.commands);
 				});
 				return cmds;
+			},
+
+			render: function(){
+				var textGroup = createSVGElement('g');
+				textGroup.setAttribute('id', 'bowlcut-'+textPath.uniqueId);
+				var charPaths = textPath.renderToPaths();
+
+				charPaths.forEach(function(cPath){
+					var cPathElem = createSVGElement('path');
+					cPathElem.setAttribute('d', cPath.toPathData(textPath.precision));
+					setAttributes(cPathElem, textPath.attributes);
+					setStyles(cPathElem, textPath.styles);
+					textGroup.appendChild(cPathElem);
+				});
+
+				return textGroup;
 			}
 		};
 
@@ -468,6 +404,7 @@
 					}
 				},
 				Q: function(cmd){
+					//converts quadratic curves to cubic
 					return cmdHandler.C({
 						type: 'C',
 						x1: activeX + 2/3 *(cmd.x1-activeX),
@@ -489,6 +426,15 @@
 
 			openPath.commands = finalCommandList;
 			return openPath;
+		}
+
+		function scaleReducedPath(openPath,sx,sy){
+			openPath.commands.forEach(function(cmd){
+				if('ML'.indexOf(cmd.type) > -1){
+					cmd.x *= sx;
+					cmd.y *= sy;
+				}
+			});
 		}
 
 		function measureCommandLength(startX, startY, cmd){
