@@ -122,7 +122,7 @@
 							}
 						});
 					},
-					upright: function(pointA, lengthToPt, openPath, charAdvance){
+					upright: function(pointA, lengthToPt, openPath){
 						openPath.commands.forEach(function(pathCmd){
 							if('ML'.indexOf(pathCmd.type)>-1){
 								pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(textPath.precision));
@@ -189,17 +189,18 @@
 							for(var j=0; j<textPath.text.length; j++){
 								var pointOnPath = textPath.getPointOnPath(currentPathOffset);
 								scaleReducedPath(charPaths[j],widthScale, 1);
+								charAdvances[j] *= widthScale;
+								charWidths[j] *= widthScale;
+								kerningValues[j] *= widthScale;
+
 								if(j===0){
-									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], 0,0);
+									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], 0);
 								}
 								else{
-									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], widthScale*charAdvances[j], widthScale*charWidths[j]);
+									glyphBehaviorAdjustments[textPath.glyphBehavior](pointOnPath, currentPathOffset, charPaths[j], charAdvances[j]);
 								}
-								if(j < textPath.text.length-2){
-									currentPathOffset += widthScale*(charAdvances[j]+kerningValues[j]);
-								}
-								else{
-									currentPathOffset += widthScale*charAdvances[j];
+								if(j < textPath.text.length-1){
+									currentPathOffset += charAdvances[j]+kerningValues[j];
 								}
 							}
 						}
