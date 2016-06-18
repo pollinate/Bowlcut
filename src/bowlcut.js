@@ -161,12 +161,15 @@
 						textBehaviorsToPlacements.center('right');
 					},
 					justify: function(){
-						var widthScale = textPath.pathLength/textWidth;
+						var advanceSum = charAdvances.reduce(function(a,b){
+							return a+b;
+						});
+						var widthScale = textPath.pathLength/advanceSum;
 						var currentPathOffset = 0;
 
 						if(widthScale >= 1){
 							//path is longer than rendered text, just spread out characters
-							console.log('spread: ', textPath.text);
+							//console.log('spread: ', textPath.text);
 							for(var j=0; j<textPath.text.length; j++){
 								var pointOnPath = textPath.getPointOnPath(currentPathOffset);
 								if(j===0){
@@ -185,7 +188,7 @@
 						}
 						else{
 							//path is shorter than string, scale down chars to fit
-							console.log('scale down: ', textPath.text);
+							//console.log('scale down: ', textPath.text);
 							for(var j=0; j<textPath.text.length; j++){
 								var pointOnPath = textPath.getPointOnPath(currentPathOffset);
 								scaleReducedPath(charPaths[j],widthScale, 1);
