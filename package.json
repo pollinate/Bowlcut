@@ -17,6 +17,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/pollinate-dev/bowlcut.js#readme",
   "dependencies": {
+    "bezier-js": "^2.2.1",
     "opentype.js": "^0.6.2"
   }
 }

@@ -1,4 +1,4 @@
-(function(opentype){
+(function(console, opentype, Bezier){
 
 	'use strict';
 
@@ -64,7 +64,7 @@
 				var straightPath = createSVGElement('path');
 				straightPath.setAttribute('d', 'M'+(region.bounds.x)+','+ (region.bounds.y+region.bounds.height)+
 					' L'+(region.bounds.x+region.bounds.width)+','+(region.bounds.y+region.bounds.height));
-				var fontSize = region.bounds.height*1.25;
+				var fontSize = region.bounds.height*1.362;
 				var straightPathLength = straightPath.getTotalLength();
 
 				//build region text string
@@ -452,6 +452,29 @@
 		return tBounds;
 	}
 
+	function convertCommandToBezier(startX, startY, cmd){
+		var cmdHandler = {
+			M: function(){
+				return null; //not representable as a bezier
+			},
+			L: function(){
+				var halfX = startX + (cmd.x - startX)/2;
+				var halfY = startY + (cmd.y - startY)/2;
+				return new Bezier(startX, startY, halfX, halfY, cmd.x, cmd.y);
+			},
+			C: function(){
+				return new Bezier(startX, startY, cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
+			},
+			Q: function(){
+				return new Bezier(startX, startY, cmd.x1, cmd.y1, cmd.x, cmd.y);
+			},
+			Z: function(){
+				return null; //not representable as a bezier
+			}
+		};
+		return cmdHandler[cmd.type](cmd);
+	}
+
 	function pointOnCubicBezier(points, t){
 		if(points.length == 1) {
 			return points[0];
@@ -543,24 +566,37 @@
 	}
 
 	function measureCommandLength(startX, startY, cmd){
-		var pathString = 'M' + startX + ' ' + startY + ', ' + cmd.type;
-		var pt1 = (cmd.x1? (cmd.x1 + ' ' + cmd.y1) : '');
-		var pt2 = (cmd.x2? (cmd.x2 + ' ' + cmd.y2) : '');
-		var ptEnd = cmd.x + ' ' + cmd.y;
-		if(pt1.length){
-			pathString += pt1 + ', ' + pt2 + ', ' + ptEnd;
+		// var pathString = 'M' + startX + ' ' + startY + ', ' + cmd.type;
+		// var pt1 = (cmd.x1? (cmd.x1 + ' ' + cmd.y1) : '');
+		// var pt2 = (cmd.x2? (cmd.x2 + ' ' + cmd.y2) : '');
+		// var ptEnd = cmd.x + ' ' + cmd.y;
+		// if(pt1.length){
+		// 	pathString += pt1 + ', ' + pt2 + ', ' + ptEnd;
+		// }
+		// else{
+		// 	pathString += ptEnd;
+		// }
+		// var pathElem = createSVGElement('path');
+		// pathElem.setAttribute('d', pathString);
+		// return pathElem.getTotalLength();
+
+		if(cmd.type === 'M' || cmd.type === 'Z'){
+			return 0;
 		}
 		else{
-			pathString += ptEnd;
+			var cmdBezier = convertCommandToBezier(startX, startY, cmd);
+			if(cmdBezier !== null){
+				return cmdBezier.length();
+			}
+			else{
+				console.error('tried to measure weaird command:', cmd);
+			}
 		}
-		var pathElem = createSVGElement('path');
-		pathElem.setAttribute('d', pathString);
-		return pathElem.getTotalLength();
 	}
 
 	function lerp(a, b, t){
 		return (1-t)*a + t*b;
 	}
 
-})(window.opentype);
+})(window.console, window.opentype, window.Bezier);
 
