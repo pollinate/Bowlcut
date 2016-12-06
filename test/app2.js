@@ -25,7 +25,7 @@
 				width: 256,
 				height: 64
 			},
-			font: 0,
+			font: 1,
 			fill: 0,
 			stroke: 1,
 			slice: {
@@ -55,7 +55,7 @@
 		var regionA = wordmark.addRegion(dataA);
 		var regionB = wordmark.addRegion(dataB);
 
-		regionA.makeRadialArch(Math.PI/8);
+		regionA.makeRadialArch(0.5);
 		regionB.makeArch(0, 0.3);
 
 		staging.appendChild(wordmark.render());

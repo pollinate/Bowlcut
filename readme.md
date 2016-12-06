@@ -33,7 +33,7 @@ Region objects define the position, styling, and bounding paths of text in the B
 			width: 256,
 			height: 64
 		},
-		font: 0, // use the index of the font in the Bowlcut object
+		font: 1, // use the index of the font in the Bowlcut object
 		fill: 0,
 		stroke: 1,
 		slice: {
@@ -41,7 +41,7 @@ Region objects define the position, styling, and bounding paths of text in the B
 					// value is an array of arguments for String.slice()
 		},
 		topPath: null,	// you can pass path elements here if you like
-						// there are convenience methods detailed bwelow for common shapes 
+						// there are convenience methods detailed below for common shapes 
 		bottomPath: null 
 	};
 
@@ -69,7 +69,7 @@ Region objects define the position, styling, and bounding paths of text in the B
 Here's what setting up the bounding paths looks like.
 
 ```
-	regionA.makeRadialArch(Math.PI/8); //value of 0.001-1
+	regionA.makeRadialArch(0.5); //value of 0-1
 
 	regionB.makeArch(0, 0.3);	// creates a bridge arch, with a flat top and a curved-up bottom
 								// these values are on a scale of 0-1 with respect to the bounds height
