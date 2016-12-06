@@ -3,7 +3,7 @@
 Written by Duncan Alexander, 2015-16
 
 ##Installation
-Bowlcut has two dependencies: Bezier.js and Opentype.js. Please be sure to include them with your local installation of Bowlcut.
+Bowlcut has two dependencies: [Bezier.js](https://pomax.github.io/bezierjs/) and [Opentype.js](http://opentype.js.org/). Please be sure to include them with your local installation of Bowlcut.
 
 ##Use
 A Bowlcut object is a renderable collection of styled text grouped into regions. These regions reference properties on the Bowlcut object for their styling, and have some properties of their own. Here's an example of how to set up a Bowlcut object.
