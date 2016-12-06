@@ -3,7 +3,7 @@
   'use strict';
 
     /*
-      BOWLCUT.JS
+      Bowlcut.JS
       v0.0.5
       A library for generating warped SVG text
       hypothete 2016

@@ -1,4 +1,4 @@
-# bowlcut.js
+# Bowlcut.js
 ##A library for hairy SVG text manipulation
 Written by Duncan Alexander, 2015-16
 
@@ -77,8 +77,20 @@ Here's what setting up the bounding paths looks like.
 	//also available: region.makeStraightPaths() for unwarped regions
 ```
 
+Finally, to render:
+
+```
+	someSvg.appendChild(wordmark.render());
+
+	//the render() function returns an SVG group of paths representing the regions.
+```
+
 And the final output:
 
 ![Alt](/test/example-output-index2.svg "Example Bowlcut image")
 
 This example is provided as working code under `test/index2.html` in the repository.
+
+##Upcoming features
+- Negative values for radial arch
+- Further incorporation of Bezier.js LUT functionality and point sampling
