@@ -16,7 +16,7 @@
 			regions: [],
 			fonts: [],
 			precision: 3,
-			debug: true,
+			debug: false,
 			uniqueId: Math.round(Math.random()*1024).toString(16),
 			addRegion: addRegion,
 			render: render
@@ -566,20 +566,6 @@
 	}
 
 	function measureCommandLength(startX, startY, cmd){
-		// var pathString = 'M' + startX + ' ' + startY + ', ' + cmd.type;
-		// var pt1 = (cmd.x1? (cmd.x1 + ' ' + cmd.y1) : '');
-		// var pt2 = (cmd.x2? (cmd.x2 + ' ' + cmd.y2) : '');
-		// var ptEnd = cmd.x + ' ' + cmd.y;
-		// if(pt1.length){
-		// 	pathString += pt1 + ', ' + pt2 + ', ' + ptEnd;
-		// }
-		// else{
-		// 	pathString += ptEnd;
-		// }
-		// var pathElem = createSVGElement('path');
-		// pathElem.setAttribute('d', pathString);
-		// return pathElem.getTotalLength();
-
 		if(cmd.type === 'M' || cmd.type === 'Z'){
 			return 0;
 		}
@@ -589,7 +575,7 @@
 				return cmdBezier.length();
 			}
 			else{
-				console.error('tried to measure weaird command:', cmd);
+				console.error('tried to measure weird command:', cmd);
 			}
 		}
 	}
