@@ -1,7 +1,7 @@
 (function($, opentype, Bowlcut){
 	'use strict';
 
-	var staging = document.querySelector('#staging');
+	var staging = document.querySelector('#staging2');
 
 	var fonts = {};
 	var fontnames = [
@@ -16,7 +16,7 @@
 		wordmark.text = ['example', 'wordmark'];
 		wordmark.colors = ['#ff0000', '#00ccff'];
 		wordmark.fonts = [fonts['Collegiate'], fonts['UA_Full_Block']];
-		wordmark.debug = true;
+		wordmark.debug = false;
 
 		var dataA = {
 			bounds: {

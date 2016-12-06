@@ -23,6 +23,10 @@ body {
 	border: 1px solid #ccc;
 }
 
+#staging2 {
+	border: 1px solid #ccc;
+}
+
 #controls {
 	position: absolute;
 	left: 2em;

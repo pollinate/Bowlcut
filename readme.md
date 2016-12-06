@@ -16,9 +16,9 @@ A Bowlcut object is a renderable collection of styled text grouped into regions.
 	wordmark.fonts = [collegiate, fullBlock];	// OpenType.js font objects. Must be preloaded.
 
 	/* other properties:
-		precision (decimal places)
+		precision (decimal places, defaults to 3)
 		debug (true / false). Shows paths defining the regions
-		uniqueId (hex string)
+		uniqueId (hex string set up by the constructor)
 	*/
 ```
 
