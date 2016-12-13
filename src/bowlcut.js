@@ -78,7 +78,6 @@
 
         //scale to width
         //scale height to bounds (down or up)
-        //reducePathToLines(textPath, Math.pow(5,wordmark.precision));
         scaleOpenPath(textPath, ((textPathBounds.width > region.bounds.width) ? (region.bounds.width/textPathBounds.width) : 1), (region.bounds.height / textPathBounds.height));
 
         //update the bounds again
@@ -89,6 +88,8 @@
         var ny = region.bounds.y - textPathBounds.y;
 
         translateOpenPath(textPath, nx, ny);
+
+        reducePathToLines(textPath, Math.pow(5,wordmark.precision));
 
         return textPath;
 
@@ -335,13 +336,28 @@
     return document.createElementNS('http://www.w3.org/2000/svg', elem);
   }
 
+  function copyCommands(srcPath, destPath){
+    for(var cmdIndex in srcPath.commands){
+      var cmd = srcPath.commands[cmdIndex];
+      var newCmd = {};
+      var cmdKeys = Object.keys(cmd);
+      for(var keyIndex in cmdKeys){
+        //deep copy values
+        newCmd[cmdKeys[keyIndex]] = cmd[cmdKeys[keyIndex]];
+      }
+      destPath.commands.push(newCmd);
+    }
+  }
+
   function parsePathElement(pathElem, precision){
     //returns a DOM node from the string
     var pathNode = createSVGElement('path');
+    var openPathCopy = new opentype.Path();
+    copyCommands(pathElem, openPathCopy);
     //quick and dirty sample count, a better method would be this:
     // http://www.antigrain.com/research12/adaptive_bezier/index.html
-    reducePathToLines(pathElem, Math.pow(5,precision));
-    pathNode.setAttribute('d', pathElem.toPathData(precision));
+    reducePathToLines(openPathCopy, Math.pow(5,precision));
+    pathNode.setAttribute('d', openPathCopy.toPathData(precision));
     return pathNode;
   }
 
@@ -458,25 +474,8 @@
     return openPath;
   }
 
-  function scaleReducedPath(openPath,sx,sy){
-    openPath.commands.forEach(function(cmd){
-      if('ML'.indexOf(cmd.type) > -1){
-        cmd.x *= sx;
-        cmd.y *= sy;
-      }
-    });
-  }
-
-  function translateReducedPath(openPath,dx,dy){
-    openPath.commands.forEach(function(cmd){
-      if('ML'.indexOf(cmd.type) > -1){
-        cmd.x += dx;
-        cmd.y += dy;
-      }
-    });
-  }
-
   function scaleOpenPath(openPath,sx,sy){
+
     openPath.commands.forEach(function(cmd){
       if('ML'.indexOf(cmd.type) > -1){
         cmd.x *= sx;
@@ -521,8 +520,6 @@
       }
     });
   }
-
-  
 
   function measureCommandLength(startX, startY, cmd){
     if(cmd.type === 'M' || cmd.type === 'Z'){
