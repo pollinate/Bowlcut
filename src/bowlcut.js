@@ -40,7 +40,7 @@
         slice: regionOptions.slice || {
           0: []
         },
-        renderTextToBounds: renderTextToBounds,
+        fitTextInBounds: fitTextInBounds,
         render: render,
         makeStraightPaths: makeStraightPaths,
         makeArch: makeArch,
@@ -51,8 +51,7 @@
 
       return region;
 
-      function renderTextToBounds(){
-        //returns text as an opentype path within the bounds
+      function fitTextInBounds(){
 
         var regionFont = wordmark.fonts[region.font];
         if(!regionFont){
@@ -60,15 +59,10 @@
           return;
         }
 
-        //build straight path at bottom of bounds
-        var straightPath = createSVGElement('path');
-        straightPath.setAttribute('d', 'M'+(region.bounds.x)+','+ (region.bounds.y+region.bounds.height)+
-          ' L'+(region.bounds.x+region.bounds.width)+','+(region.bounds.y+region.bounds.height));
         var fontSize = region.bounds.height*1.362;
-        var straightPathLength = straightPath.getTotalLength();
+        var regionText = '';
 
         //build region text string
-        var regionText = '';
         for(var textIndex in region.slice){
           if(region.slice[textIndex].length){
             regionText += wordmark.text[textIndex].slice.apply(wordmark.text[textIndex], region.slice[textIndex]);
@@ -78,125 +72,32 @@
           }
         }
 
-        var charPaths = [];
-        var charGlyphs = [];
-        var charAdvances = [];
-        var charWidths = [];
-        var kerningValues = [];
-        var textWidth = getPathElemBounds(parsePathElement(regionFont.getPath(regionText,0,0,fontSize),2)).width;
-        var finalPathCommands = [];
-        var finalPath = new opentype.Path();
 
-        for(var i=0; i<regionText.length; i++){
-          charPaths[i] = regionFont.getPath(regionText.charAt(i),0,0,fontSize);
-          reducePathToLines(charPaths[i], Math.pow(5,wordmark.precision));
-          charGlyphs[i] = regionFont.charToGlyph(regionText.charAt(i));
-          charAdvances[i] = fontSize * charGlyphs[i].advanceWidth / regionFont.unitsPerEm;
-          if(charGlyphs[i].xMax){
-            charWidths[i] = fontSize * (charGlyphs[i].xMax - charGlyphs[i].xMin) / regionFont.unitsPerEm;
-          }
-          else{
-            charWidths[i] = getPathElemBounds(parsePathElement(charPaths[i],wordmark.precision)).width;
-          }
-        }
+        var textPath = regionFont.getPath(regionText,0,0,fontSize);
+        var textPathBounds = getPathElemBounds(parsePathElement(textPath,2));
 
-        if(regionText.length > 1){
-          for(var i=0; i<regionText.length-1; i++){
-            //second pass for kerns
-            kerningValues[i] = fontSize * regionFont.getKerningValue(charGlyphs[i], charGlyphs[i+1]) / regionFont.unitsPerEm;
-          }
-        }
+        //scale to width
+        //scale height to bounds (down or up)
+        reducePathToLines(textPath, Math.pow(5,wordmark.precision));
+        scaleReducedPath(textPath, ((textPathBounds.width > region.bounds.width) ? (region.bounds.width/textPathBounds.width) : 1), (region.bounds.height / textPathBounds.height));
 
-        //choose behavior based on path size
+        //update the bounds again
+        textPathBounds = getPathElemBounds(parsePathElement(textPath,2));
 
-        if(textWidth > straightPathLength){
-          //justify the text, squishing if necessary
+        //center the scaled text
+        var nx = region.bounds.x + region.bounds.width/2 - textPathBounds.width/2 - textPathBounds.x;
+        var ny = region.bounds.y - textPathBounds.y;
 
-          var advanceSum = charAdvances.reduce(function(a,b){
-            return a+b;
-          });
-          var widthScale = straightPathLength/advanceSum;
-          var currentPathOffset = 0;
+        translateReducedPath(textPath, nx, ny);
 
-          if(widthScale >= 1){
-            //path is longer than rendered text, just spread out characters
-            for(var j=0; j<regionText.length; j++){
-              var pointOnPath = straightPath.getPointAtLength(currentPathOffset);
-              if(j===0){
-                placeGlyph(pointOnPath, currentPathOffset, charPaths[j], 0,0);
-              }
-              else{
-                placeGlyph(pointOnPath, currentPathOffset, charPaths[j], charAdvances[j], charWidths[j]);
-              }
-              if(j < regionText.length-2){
-                currentPathOffset += widthScale*(charAdvances[j]+kerningValues[j]);
-              }
-              else{
-                currentPathOffset += widthScale*charAdvances[j];
-              }
-            }
-          }
-          else{
-            //path is shorter than string, scale down chars to fit
-            for(var j=0; j<regionText.length; j++){
-              var pointOnPath = straightPath.getPointAtLength(currentPathOffset);
-              scaleReducedPath(charPaths[j],widthScale, 1);
-              charAdvances[j] *= widthScale;
-              charWidths[j] *= widthScale;
-              kerningValues[j] *= widthScale;
+        return textPath;
 
-              if(j===0){
-                placeGlyph(pointOnPath, currentPathOffset, charPaths[j], 0);
-              }
-              else{
-                placeGlyph(pointOnPath, currentPathOffset, charPaths[j], charAdvances[j]);
-              }
-              if(j < regionText.length-1){
-                currentPathOffset += charAdvances[j]+kerningValues[j];
-              }
-            }
-          }
-        }
-        else{
-          //center the text
-
-          var positionOffset = straightPathLength/2 - textWidth/2;
-          var currentCharOffset = 0;
-
-          for(var j=0; j<regionText.length; j++){
-            var lengthOnPath = positionOffset + currentCharOffset;
-            var pointOnPath = straightPath.getPointAtLength(lengthOnPath);
-
-            placeGlyph(pointOnPath, lengthOnPath, charPaths[j], charAdvances[j], charWidths[j]);
-
-            if(j < regionText.length-1){
-              currentCharOffset += charAdvances[j] + kerningValues[j];
-            }
-          }
-        }
-
-        function placeGlyph (pointA, lengthToPt, openPath){
-          openPath.commands.forEach(function(pathCmd){
-            if('ML'.indexOf(pathCmd.type)>-1){
-              pathCmd.x = Number((pathCmd.x+pointA.x).toFixed(wordmark.precision));
-              pathCmd.y = Number((pathCmd.y+pointA.y).toFixed(wordmark.precision));
-            }
-          });
-        }
-
-        charPaths.forEach(function(charPath){
-          finalPathCommands = finalPathCommands.concat(charPath.commands);
-        });
-
-        finalPath.commands = finalPathCommands;
-
-        return finalPath;
       }
 
       function render(){
         //calls renderTextToBounds and then renders text between paths. returns opentype path
 
-        var straightTextRegion = region.renderTextToBounds();
+        var straightTextRegion = region.fitTextInBounds();
         var topPathLength = region.topPath.getTotalLength();
         var bottomPathLength = region.bottomPath.getTotalLength();
         var step = 20;
@@ -565,6 +466,15 @@
       if('ML'.indexOf(cmd.type) > -1){
         cmd.x *= sx;
         cmd.y *= sy;
+      }
+    });
+  }
+
+  function translateReducedPath(openPath,dx,dy){
+    openPath.commands.forEach(function(cmd){
+      if('ML'.indexOf(cmd.type) > -1){
+        cmd.x += dx;
+        cmd.y += dy;
       }
     });
   }
