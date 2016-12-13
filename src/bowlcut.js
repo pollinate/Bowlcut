@@ -78,8 +78,8 @@
 
         //scale to width
         //scale height to bounds (down or up)
-        reducePathToLines(textPath, Math.pow(5,wordmark.precision));
-        scaleReducedPath(textPath, ((textPathBounds.width > region.bounds.width) ? (region.bounds.width/textPathBounds.width) : 1), (region.bounds.height / textPathBounds.height));
+        //reducePathToLines(textPath, Math.pow(5,wordmark.precision));
+        scaleOpenPath(textPath, ((textPathBounds.width > region.bounds.width) ? (region.bounds.width/textPathBounds.width) : 1), (region.bounds.height / textPathBounds.height));
 
         //update the bounds again
         textPathBounds = getPathElemBounds(parsePathElement(textPath,2));
@@ -88,7 +88,7 @@
         var nx = region.bounds.x + region.bounds.width/2 - textPathBounds.width/2 - textPathBounds.x;
         var ny = region.bounds.y - textPathBounds.y;
 
-        translateReducedPath(textPath, nx, ny);
+        translateOpenPath(textPath, nx, ny);
 
         return textPath;
 
@@ -324,9 +324,6 @@
       });
 
       return wordmarkGroup;
-
-      //merge regions or something
-      //return merged result
     }
 
     return wordmark;
@@ -478,6 +475,54 @@
       }
     });
   }
+
+  function scaleOpenPath(openPath,sx,sy){
+    openPath.commands.forEach(function(cmd){
+      if('ML'.indexOf(cmd.type) > -1){
+        cmd.x *= sx;
+        cmd.y *= sy;
+      }
+      else if(cmd.type === 'C'){
+        cmd.x *= sx;
+        cmd.y *= sy;
+        cmd.x1 *= sx;
+        cmd.y1 *= sy;
+        cmd.x2 *= sx;
+        cmd.y2 *= sy;
+      }
+      else if(cmd.type === 'Q'){
+        cmd.x *= sx;
+        cmd.y *= sy;
+        cmd.x1 *= sx;
+        cmd.y1 *= sy;
+      }
+    });
+  }
+
+  function translateOpenPath(openPath,sx,sy){
+    openPath.commands.forEach(function(cmd){
+      if('ML'.indexOf(cmd.type) > -1){
+        cmd.x += sx;
+        cmd.y += sy;
+      }
+      else if(cmd.type === 'C'){
+        cmd.x += sx;
+        cmd.y += sy;
+        cmd.x1 += sx;
+        cmd.y1 += sy;
+        cmd.x2 += sx;
+        cmd.y2 += sy;
+      }
+      else if(cmd.type === 'Q'){
+        cmd.x += sx;
+        cmd.y += sy;
+        cmd.x1 += sx;
+        cmd.y1 += sy;
+      }
+    });
+  }
+
+  
 
   function measureCommandLength(startX, startY, cmd){
     if(cmd.type === 'M' || cmd.type === 'Z'){
