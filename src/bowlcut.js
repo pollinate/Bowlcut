@@ -147,8 +147,8 @@
               var yProgress = (cmd.y - region.bounds.y) / region.bounds.height;
 
               var stepProgressX = (step-1)*xProgress;
-              var floorStepProgressX = Math.floor(stepProgressX);
-              var ceilStepProgressX = Math.ceil(stepProgressX);
+              var floorStepProgressX = Math.max(0,Math.floor(stepProgressX));
+              var ceilStepProgressX = Math.min(step-1, Math.ceil(stepProgressX));
               
               var topMinPt = topPathLUT[floorStepProgressX];
               var topMaxPt = topPathLUT[ceilStepProgressX];
@@ -156,7 +156,7 @@
               var bottomMinPt = bottomPathLUT[floorStepProgressX];
               var bottomMaxPt = bottomPathLUT[ceilStepProgressX];
 
-              var progressRatio = (stepProgressX - floorStepProgressX)/(ceilStepProgressX - floorStepProgressX);
+              var progressRatio = (stepProgressX - floorStepProgressX)/(ceilStepProgressX - floorStepProgressX + 0.0001);
 
               var topPt ={
                 x: lerp(topMinPt.x, topMaxPt.x, progressRatio),
