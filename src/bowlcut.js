@@ -309,7 +309,7 @@
 
     function render(){
       var wordmarkGroup = createSVGElement('g');
-      wordmarkGroup.classList.add('bowlcut-'+wordmark.uniqueId);
+      wordmarkGroup.setAttribute('class', 'bowlcut-'+wordmark.uniqueId);
       wordmark.regions.forEach(function(region){
         wordmarkGroup.appendChild(region.render());
         if(wordmark.debug){

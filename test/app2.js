@@ -1,4 +1,4 @@
-(function($, opentype, Bowlcut){
+(function($, opentype, Bowlcut, Promise){
 	'use strict';
 
 	var staging = document.querySelector('#staging2');
@@ -78,4 +78,4 @@
 		});
 	}
 
-})(window.$, window.opentype, window.Bowlcut);
+})(window.$, window.opentype, window.Bowlcut, window.Promise);
