@@ -27,7 +27,7 @@
 		'UA_Full_Block',
 		'Undeniable'
 	];
-	var activeTemplateIndex = 0;
+	var activeTemplateIndex = 16;
 	var activeFont = null;
 	
 	var text = [
@@ -80,6 +80,7 @@
 		mlg.text = text;
 		mlg.colors = colors;
 		mlg.fonts[0] = fonts[activeFont];
+		mlg.debug = true;
 
 		templates[activeTemplateIndex].regions.forEach(function(rg){
 			var mlgRegion = mlg.addRegion(rg);

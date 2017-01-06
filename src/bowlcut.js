@@ -99,7 +99,7 @@
         var straightTextRegion = region.fitTextInBounds();
         var topPathLength = region.topPath.getTotalLength();
         var bottomPathLength = region.bottomPath.getTotalLength();
-        var step = 20;
+        var step = 100;
         var topPathLUT = [];
         var bottomPathLUT = [];
         var topPathBounds = getPathElemBounds(region.topPath);
@@ -197,49 +197,43 @@
       }
 
       function makeArch(topBend, bottomBend){
-        //sets topPath and bottomPath to arches based on values
+        //sets topPath and bottomPath to quadratic arcs based on values
         var toparc = createSVGElement('path');
         var bottomarc = createSVGElement('path');
         var bottomarcstr = '';
         var toparcstr = '';
-        var arcMultiplier = 1.325;
+        var arcMultiplier = 2;
         var toparchstrength = topBend || 0;
         var bottomarchstrength = bottomBend || 0;
 
-        var topcubic = {
+        var topquad = {
           x0: region.bounds.x,
           y0: region.bounds.y,
-          x1: region.bounds.x,
+          x1: (region.bounds.x+region.bounds.width/2),
           y1: (region.bounds.y - region.bounds.height*toparchstrength*arcMultiplier),
           x2: (region.bounds.x+region.bounds.width),
-          y2: (region.bounds.y - region.bounds.height*toparchstrength*arcMultiplier),
-          x3: (region.bounds.x+region.bounds.width),
-          y3: (region.bounds.y)
+          y2: (region.bounds.y)
         };
 
-        var bottomcubic = {
+        var bottomquad = {
           x0: region.bounds.x,
           y0: (region.bounds.y+region.bounds.height),
-          x1: region.bounds.x,
+          x1: (region.bounds.x+region.bounds.width/2),
           y1: (region.bounds.y+region.bounds.height - region.bounds.height*bottomarchstrength*arcMultiplier),
           x2: (region.bounds.x+region.bounds.width),
-          y2: (region.bounds.y+region.bounds.height - region.bounds.height*bottomarchstrength*arcMultiplier),
-          x3: (region.bounds.x+region.bounds.width),
-          y3: (region.bounds.y+region.bounds.height)
+          y2: (region.bounds.y+region.bounds.height)
         };
 
-        toparcstr += 'M'+ topcubic.x0 + ',' + topcubic.y0 + ' ';
-        toparcstr += 'C';
-        toparcstr += topcubic.x1 + ',' + topcubic.y1 + ' ';
-        toparcstr += topcubic.x2 + ',' + topcubic.y2 + ' ';
-        toparcstr += topcubic.x3 + ',' + topcubic.y3;
+        toparcstr += 'M'+ topquad.x0 + ',' + topquad.y0 + ' ';
+        toparcstr += 'Q';
+        toparcstr += topquad.x1 + ',' + topquad.y1 + ' ';
+        toparcstr += topquad.x2 + ',' + topquad.y2;
         toparc.setAttribute('d', toparcstr);
 
-        bottomarcstr += 'M'+ bottomcubic.x0 + ',' + bottomcubic.y0 + ' ';
-        bottomarcstr += 'C';
-        bottomarcstr += bottomcubic.x1 + ',' + bottomcubic.y1 + ' ';
-        bottomarcstr += bottomcubic.x2 + ',' + bottomcubic.y2 + ' ';
-        bottomarcstr += bottomcubic.x3 + ',' + bottomcubic.y3;
+        bottomarcstr += 'M'+ bottomquad.x0 + ',' + bottomquad.y0 + ' ';
+        bottomarcstr += 'Q';
+        bottomarcstr += bottomquad.x1 + ',' + bottomquad.y1 + ' ';
+        bottomarcstr += bottomquad.x2 + ',' + bottomquad.y2;
         bottomarc.setAttribute('d', bottomarcstr);
 
         region.topPath = toparc;
