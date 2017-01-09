@@ -183,6 +183,8 @@
         newPathToAppend.setAttribute('fill', wordmark.colors[region.fill] || 'none');
         newPathToAppend.setAttribute('stroke', wordmark.colors[region.stroke] || 'none');
         newPathToAppend.setAttribute('stroke-width', region.bounds.height/40);
+        newPathToAppend.setAttribute('stroke-linejoin', 'round');
+        newPathToAppend.setAttribute('stroke-linecap', 'round');
         
         return newPathToAppend;
       }
