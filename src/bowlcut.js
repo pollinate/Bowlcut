@@ -14,6 +14,7 @@
       regions: [],
       fonts: [],
       precision: 3,
+      lutResolution: 100, //number of points in look up tables for curves
       debug: false,
       uniqueId: Math.round(Math.random()*1024).toString(16),
       addRegion: addRegion,
@@ -39,6 +40,9 @@
         slice: regionOptions.slice || {
           0: []
         },
+        debugPoints: [],
+
+        // methods
         fitTextInBounds: fitTextInBounds,
         render: render,
         makeStraightPaths: makeStraightPaths,
@@ -109,16 +113,25 @@
         var straightTextRegion = region.fitTextInBounds();
         var topPathLength = region.topPath.getTotalLength();
         var bottomPathLength = region.bottomPath.getTotalLength();
-        var step = 100;
+        var step = wordmark.lutResolution;
         var topPathLUT = [];
         var bottomPathLUT = [];
         var topPathBounds = getPathElemBounds(region.topPath);
         var bottomPathBounds = getPathElemBounds(region.bottomPath);
         var delta = 0.01;
 
-        for(var i=0; i<step; i++){
+        if(wordmark.debug){
+          region.debugPoints = [];
+        }
+
+        for(var i=0; i<step+1; i++){
           topPathLUT.push(region.topPath.getPointAtLength(topPathLength*i/step));
           bottomPathLUT.push(region.bottomPath.getPointAtLength(bottomPathLength*i/step));
+
+          if(wordmark.debug){
+            region.debugPoints.push(topPathLUT[topPathLUT.length-1]);
+            region.debugPoints.push(bottomPathLUT[bottomPathLUT.length-1]);
+          }
         }
 
         if(Math.abs(topPathBounds.width -bottomPathBounds.width) < delta && Math.abs(topPathBounds.x - bottomPathBounds.x) < delta){
@@ -156,9 +169,9 @@
               var xProgress = (cmd.x - region.bounds.x) / region.bounds.width;
               var yProgress = (cmd.y - region.bounds.y) / region.bounds.height;
 
-              var stepProgressX = (step-1)*xProgress;
+              var stepProgressX = (step)*xProgress;
               var floorStepProgressX = Math.max(0,Math.floor(stepProgressX));
-              var ceilStepProgressX = Math.min(step-1, Math.ceil(stepProgressX));
+              var ceilStepProgressX = Math.min(step, Math.ceil(stepProgressX));
               
               var topMinPt = topPathLUT[floorStepProgressX];
               var topMaxPt = topPathLUT[ceilStepProgressX];
@@ -325,6 +338,15 @@
           region.bottomPath.setAttribute('fill', 'none');
           wordmarkGroup.appendChild(region.topPath);
           wordmarkGroup.appendChild(region.bottomPath);
+          for(var debugPtIndex in region.debugPoints){
+            var ptData = region.debugPoints[debugPtIndex];
+            var upPt = createSVGElement('circle');
+            upPt.setAttribute('cx',ptData.x);
+            upPt.setAttribute('cy',ptData.y);
+            upPt.setAttribute('r',2);
+            upPt.setAttribute('fill','#00ff00');
+            wordmarkGroup.appendChild(upPt);
+          }
         }
       });
 
