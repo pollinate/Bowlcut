@@ -27,7 +27,7 @@
 		'UA_Full_Block',
 		'Undeniable'
 	];
-	var activeTemplateIndex = 16;
+	var activeTemplateIndex = 5;
 	var activeFont = null;
 	
 	var text = [

@@ -119,7 +119,7 @@
 		"envelope": "straight",
 		"bounds": {
 			"x": 20,
-			"y": 550,
+			"y": 560,
 			"width": 960,
 			"height": 150
 		},
@@ -210,7 +210,8 @@
 		"stroke": 1,
 		"slice": {
 			"0": [1]
-		}
+		},
+		"stretchToWidth": true
 	}, {
 		"envelope": "straight",
 		"bounds": {

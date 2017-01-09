@@ -4,7 +4,7 @@
 
     /*
       Bowlcut.JS - A library for generating warped SVG text
-      hypothete 2016
+      hypothete 2015-17
     */
 
   window.Bowlcut = function(){
@@ -32,6 +32,7 @@
         },
         topPath: null,
         bottomPath: null,
+        stretchToWidth: regionOptions.stretchToWidth || false,
         font: regionOptions.font || 0,
         fill: regionOptions.fill === 0 ? 0 : (regionOptions.fill || null),
         stroke: regionOptions.stroke === 0 ? 0 : (regionOptions.stroke || null),
@@ -70,13 +71,22 @@
           }
         }
 
-
         var textPath = regionFont.getPath(regionText,0,0,fontSize);
         var textPathBounds = getPathElemBounds(parsePathElement(textPath,2));
 
-        //scale to width
-        //scale height to bounds (down or up)
-        scaleOpenPath(textPath, ((textPathBounds.width > region.bounds.width) ? (region.bounds.width/textPathBounds.width) : 1), (region.bounds.height / textPathBounds.height));
+        // Scale to fit bounds vertically
+        // If width > bounds width, squish to fit
+        // If stretchToWidth is active and width < bounds.width, fit bounds horizontally as well
+        
+        var widthScale = 1;
+        
+        if(region.stretchToWidth || (textPathBounds.width > region.bounds.width)){
+          widthScale = region.bounds.width/textPathBounds.width;
+        }
+
+        var heightScale = (region.bounds.height / textPathBounds.height);
+
+        scaleOpenPath(textPath, widthScale, heightScale);
 
         //update the bounds again
         textPathBounds = getPathElemBounds(parsePathElement(textPath,2));
