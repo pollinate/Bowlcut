@@ -1,6 +1,6 @@
 # Bowlcut.js
 ##A library for hairy SVG text manipulation
-Written by Duncan Alexander, 2015-16
+Written by Duncan Alexander, 2015-17
 
 ##Installation
 Bowlcut has two dependencies: [Bezier.js](https://pomax.github.io/bezierjs/) and [Opentype.js](http://opentype.js.org/). Please be sure to include them with your local installation of Bowlcut.
