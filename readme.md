@@ -1,4 +1,4 @@
-![bowlcut-logo.png](https://bitbucket.org/repo/BRMLj5/images/3563437161-bowlcut-logo.png)
+![Artboard 1@0.5x.png](https://bitbucket.org/repo/BRMLj5/images/3485932671-Artboard%201@0.5x.png)
 
 ##A library for hairy SVG text manipulation
 Written by Duncan Alexander, 2015-17
