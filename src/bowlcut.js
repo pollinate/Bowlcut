@@ -31,8 +31,8 @@
           width: 0,
           height: 0
         },
-        topPath: null,
-        bottomPath: null,
+        topPath: regionOptions.topPath || null,
+        bottomPath: regionOptions.bottomPath || null,
         stretchToWidth: regionOptions.stretchToWidth || false,
         font: regionOptions.font || 0,
         fill: regionOptions.fill === 0 ? 0 : (regionOptions.fill || null),
@@ -81,9 +81,9 @@
         // Scale to fit bounds vertically
         // If width > bounds width, squish to fit
         // If stretchToWidth is active and width < bounds.width, fit bounds horizontally as well
-        
+
         var widthScale = 1;
-        
+
         if(region.stretchToWidth || (textPathBounds.width > region.bounds.width)){
           widthScale = region.bounds.width/textPathBounds.width;
         }
@@ -172,7 +172,7 @@
               var stepProgressX = (step)*xProgress;
               var floorStepProgressX = Math.max(0,Math.floor(stepProgressX));
               var ceilStepProgressX = Math.min(step, Math.ceil(stepProgressX));
-              
+
               var topMinPt = topPathLUT[floorStepProgressX];
               var topMaxPt = topPathLUT[ceilStepProgressX];
 
@@ -193,7 +193,7 @@
 
               var lerpX = lerp(topPt.x,bottomPt.x, yProgress);
               var lerpY = lerp(topPt.y,bottomPt.y, yProgress);
-              
+
               cmd.x = lerpX;
               cmd.y = lerpY;
 
@@ -208,7 +208,7 @@
         newPathToAppend.setAttribute('stroke-width', region.bounds.height/40);
         newPathToAppend.setAttribute('stroke-linejoin', 'round');
         newPathToAppend.setAttribute('stroke-linecap', 'round');
-        
+
         return newPathToAppend;
       }
 
@@ -567,4 +567,3 @@
   }
 
 })(window.console, window.opentype, window.Bezier);
-

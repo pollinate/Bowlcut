@@ -1,4 +1,6 @@
-# Bowlcut.js
+
+![Bowlcut.js](test/paulmccartney.svg)
+
 ##A library for hairy SVG text manipulation
 Written by Duncan Alexander, 2015-17
 
@@ -41,7 +43,7 @@ Region objects define the position, styling, and bounding paths of text in the B
 					// value is an array of arguments for String.slice()
 		},
 		topPath: null,	// you can pass path elements here if you like
-						// there are convenience methods detailed below for common shapes 
+						// there are convenience methods detailed below for common shapes
 		bottomPath: null,
 		stretchToWidth: false //default is false. Set to true to fill bounds when text width < bounds width
 							  // otherwise text will be centered in the bounds
@@ -56,7 +58,7 @@ Region objects define the position, styling, and bounding paths of text in the B
 		},
 		font: 0,
 		fill: 1,
-		stroke: null, 
+		stroke: null,
 		slice: {
 			1: [4] // will return 'mark'
 		},
