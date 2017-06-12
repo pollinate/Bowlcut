@@ -35,6 +35,7 @@
         bottomPath: regionOptions.bottomPath || null,
         stretchToWidth: regionOptions.stretchToWidth || false,
         font: regionOptions.font || 0,
+        advanceWidthScale: regionOptions.advanceWidthScale || 1,
         fill: regionOptions.fill === 0 ? 0 : (regionOptions.fill || null),
         stroke: regionOptions.stroke === 0 ? 0 : (regionOptions.stroke || null),
         slice: regionOptions.slice || {
@@ -75,8 +76,24 @@
           }
         }
 
+        // if the advanceWidthScale is modified, apply it to the font glyphs
+        if (region.advanceWidthScale !== 1) {
+          for (var glyphIndex=0; glyphIndex < regionFont.glyphs.length; glyphIndex++) {
+            var glyph = regionFont.glyphs.glyphs[glyphIndex];
+            glyph.advanceWidth *= region.advanceWidthScale;
+          }
+        }
+
         var textPath = regionFont.getPath(regionText,0,0,fontSize);
         var textPathBounds = getPathElemBounds(parsePathElement(textPath,2));
+
+        //undo our changes to the font for other regions
+        if (region.advanceWidthScale !== 1) {
+          for (var glyphIndex=0; glyphIndex < regionFont.glyphs.length; glyphIndex++) {
+            var glyph = regionFont.glyphs.glyphs[glyphIndex];
+            glyph.advanceWidth /= region.advanceWidthScale;
+          }
+        }
 
         // Scale to fit bounds vertically
         // If width > bounds width, squish to fit

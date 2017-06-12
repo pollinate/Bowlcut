@@ -44,8 +44,9 @@ Region objects define the position, styling, and bounding paths of text in the B
 		topPath: null,	// you can pass path elements here if you like
 						// there are convenience methods detailed below for common shapes
 		bottomPath: null,
-		stretchToWidth: false //default is false. Set to true to fill bounds when text width < bounds width
+		stretchToWidth: false, //default is false. Set to true to fill bounds when text width < bounds width
 							  // otherwise text will be centered in the bounds
+		advanceWidthScale: 1.0 // default is 1. this adjusts letter spacing before scaling and stretching is applied.
 	};
 
 	var dataB = {

@@ -27,9 +27,9 @@
 		'UA_Full_Block',
 		'Undeniable'
 	];
-	var activeTemplateIndex = 5;
+	var activeTemplateIndex = 4;
 	var activeFont = null;
-	
+
 	var text = [
 		textline1.value,
 		textline2.value,
@@ -83,6 +83,9 @@
 		mlg.debug = true;
 
 		templates[activeTemplateIndex].regions.forEach(function(rg){
+
+			rg.advanceWidthScale = 1.0;
+
 			var mlgRegion = mlg.addRegion(rg);
 			if(rg.envelope === 'arch'){
 				mlgRegion.makeArch(rg.toparch, rg.bottomarch);
