@@ -1,10 +1,22 @@
-(function($, opentype, Bowlcut, Promise){
+(function($, opentype, Bowlcut, Promise, paper, Papercut){
 	'use strict';
 
 	var staging = document.querySelector('#staging');
+	paper.setup([1100, 1100]);
 
 	var mlgSelect = document.querySelector('#mlg-select');
 	var fontSelect = document.querySelector('#font-select');
+	var papercutSelect = document.querySelector("#papercut-select");
+
+	var papercutOn = document.createElement('option');
+	papercutOn.textContent = "Papercut On";
+	papercutOn.value = 1;
+	var papercutOff = document.createElement('option');
+	papercutOff.textContent = "Papercut Off";
+	papercutOff.value = 0;
+	papercutSelect.appendChild(papercutOn);
+	papercutSelect.appendChild(papercutOff);
+	var papercutStatus = 1;
 
 	var textline1 = document.querySelector('#textline1');
 	var textline2 = document.querySelector('#textline2');
@@ -17,6 +29,7 @@
 	var templates = [];
 	var fonts = {};
 	var fontnames = [
+		'Athletic_Script',
 		'Bearcat',
 		'Cadet',
 		'Collegiate',
@@ -54,6 +67,11 @@
 			drawText();
 		};
 
+		papercutSelect.onchange = function(){
+			papercutStatus = Number(papercutSelect.value);
+			drawText();
+		};
+
 		textline1.oninput = textline2.oninput = textline3.oninput = function(){
 			text[0] = textline1.value;
 			text[1] = textline2.value;
@@ -68,6 +86,8 @@
 			drawText();
 		};
 
+		activeFont = fontnames[0];
+
 		drawText();
 	});
 
@@ -80,7 +100,7 @@
 		mlg.text = text;
 		mlg.colors = colors;
 		mlg.fonts[0] = fonts[activeFont];
-		mlg.debug = true;
+		//mlg.debug = true;
 
 		templates[activeTemplateIndex].regions.forEach(function(rg){
 
@@ -98,7 +118,12 @@
 			}
 		});
 
-		staging.appendChild(mlg.render());
+		if(papercutStatus){
+			staging.appendChild(Papercut(mlg.render()));
+		}
+		else{
+			staging.appendChild(mlg.render());
+		}
 	}
 
 	function loadTemplates(){
@@ -131,7 +156,7 @@
 						option.value = fn;
 						option.textContent = fn;
 						fontSelect.appendChild(option);
-						fontSelect.value = activeFont = fn;
+						fontSelect.value = fn;
 					});
 				}));
 			});
@@ -140,4 +165,4 @@
 		});
 	}
 
-})(window.$, window.opentype, window.Bowlcut, window.Promise);
+})(window.$, window.opentype, window.Bowlcut, window.Promise, window.paper, window.Papercut);
