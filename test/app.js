@@ -2,7 +2,7 @@
 	'use strict';
 
 	var staging = document.querySelector('#staging');
-	paper.setup([1100, 1100]);
+	paper.setup([1000, 1000]);
 
 	var mlgSelect = document.querySelector('#mlg-select');
 	var fontSelect = document.querySelector('#font-select');
