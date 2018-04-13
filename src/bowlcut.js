@@ -1,4 +1,4 @@
-(function(console, opentype, Bezier){
+(function(console, opentype, Bezier, paper){
 
   'use strict';
 
@@ -356,6 +356,7 @@
     function render(){
       var wordmarkGroup = createSVGElement('g');
       wordmarkGroup.setAttribute('class', 'bowlcut-'+wordmark.uniqueId);
+
       wordmark.regions.forEach(function(region){
         wordmarkGroup.appendChild(region.render());
         if(wordmark.debug){
@@ -593,4 +594,4 @@
     return (1-t)*a + t*b;
   }
 
-})(window.console, window.opentype, window.Bezier);
+})(window.console, window.opentype, window.Bezier, window.paper);
