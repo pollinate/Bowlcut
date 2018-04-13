@@ -220,8 +220,18 @@
 
         var newPathToAppend = createSVGElement('path');
         newPathToAppend.setAttribute('d', straightTextRegion.toPathData(wordmark.precision));
-        newPathToAppend.setAttribute('fill', wordmark.colors[region.fill] || 'none');
-        newPathToAppend.setAttribute('stroke', wordmark.colors[region.stroke] || 'none');
+        if(region.fill >= 0 && region.fill !== null) {
+          newPathToAppend.setAttribute('fill', wordmark.colors[region.fill]);
+        }
+        else{
+          newPathToAppend.setAttribute('fill', 'none');
+        }
+        if(region.stroke >= 0 && region.stroke !== null) {
+          newPathToAppend.setAttribute('stroke', wordmark.colors[region.stroke]);
+        }
+        else{
+          newPathToAppend.setAttribute('stroke', 'none');
+        }
         newPathToAppend.setAttribute('stroke-width', region.bounds.height/40);
         newPathToAppend.setAttribute('stroke-linejoin', 'round');
         newPathToAppend.setAttribute('stroke-linecap', 'round');
