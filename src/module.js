@@ -1,7 +1,14 @@
 import * as opentype from 'opentype.js';
-import * as Bezier from 'bezier-js';
+import * as bezierWrapper from 'bezier-js';
 
-export default function Bowlcut(){
+const Bezier = bezierWrapper.default;
+
+export {
+    Bowlcut,
+    opentype
+};
+
+function Bowlcut(){
     var wordmark = {
     text: [],
     colors: [],
