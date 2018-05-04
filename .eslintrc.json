@@ -1,0 +1,16 @@
+{
+    "extends": [
+        "pollinate/environments/browser"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 8,
+        "sourceType": "module"
+    },
+    "globals": {
+        "Promise": true,
+        "Set": true,
+        "global": true,
+        "Buffer": true,
+        "Uint8Array": true
+    }
+}
