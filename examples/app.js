@@ -84,7 +84,7 @@ function drawText() {
   mlg.text = text;
   mlg.colors = colors;
   mlg.fonts[0] = fonts[activeFont];
-  //mlg.debug = true;
+  mlg.debug = true;
 
   templates[activeTemplateIndex].regions.forEach(function renderRegion(rg) {
 

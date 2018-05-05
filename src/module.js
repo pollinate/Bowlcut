@@ -449,64 +449,63 @@ function convertCommandToBezier(startX, startY, cmd){
 }
 
 function pointOnCubicBezier(points, t){
-    if(points.length == 1) {
+  if(points.length == 1) {
     return points[0];
-    }
-    else {
+  }
+  else {
     var newpoints = [];
     for(var i=0; i<points.length-1; i++){
-        var newpt = {};
-        newpt.x = (1-t) * points[i].x + t * points[i+1].x;
-        newpt.y = (1-t) * points[i].y + t * points[i+1].y;
-        newpoints.push(newpt);
+      var newpt = {};
+      newpt.x = (1-t) * points[i].x + t * points[i+1].x;
+      newpt.y = (1-t) * points[i].y + t * points[i+1].y;
+      newpoints.push(newpt);
     }
     return pointOnCubicBezier(newpoints,t);
-    }
+  }
 }
 
 function reducePathToLines(openPath, maxCurvePts){
-    var activeX = 0,
-    activeY = 0,
-    finalCommandList = [];
+  var activeX = 0,
+  activeY = 0,
+  finalCommandList = [];
 
-    var cmdHandler = {
+  var cmdHandler = {
     M: function(cmd){
-        activeX = cmd.x;
-        activeY = cmd.y;
-        finalCommandList.push(cmd);
+      activeX = cmd.x;
+      activeY = cmd.y;
+      finalCommandList.push(cmd);
     },
     L: function(cmd){
-        var cmdLength = measureCommandLength(activeX, activeY, cmd);
-        var numSteps = Math.min(cmdLength, maxCurvePts);
-        for(var i=0; i<numSteps; i++){
+      var cmdLength = measureCommandLength(activeX, activeY, cmd);
+      var numSteps = Math.min(cmdLength, maxCurvePts);
+      for(var i=0; i<numSteps; i++){
         var midX = lerp(activeX, cmd.x, i/numSteps);
         var midY = lerp(activeY, cmd.y, i/numSteps);
         finalCommandList.push({type: 'L', x: midX, y: midY});
         activeX = midX;
         activeY = midY;
-        }
+      }
     },
     C: function(cmd){
-        var curvePoints = [
+      var curvePoints = [
         {x: activeX, y: activeY},
         {x: cmd.x1, y: cmd.y1},
         {x: cmd.x2, y: cmd.y2},
         {x: cmd.x, y: cmd.y}
-        ];
-        var cmdLength = measureCommandLength(activeX, activeY, cmd);
-        var numSteps = Math.min(cmdLength, maxCurvePts);
-
-        for(var i=0; i<numSteps; i++){
+      ];
+      var cmdLength = measureCommandLength(activeX, activeY, cmd);
+      var numSteps = Math.min(cmdLength, maxCurvePts);
+      for(var i=0; i<numSteps; i++){
         var newPt = pointOnCubicBezier(curvePoints, i/numSteps);
         var newCmd = {type: 'L', x: newPt.x, y: newPt.y};
         activeX = newCmd.x;
         activeY = newCmd.y;
         finalCommandList.push(newCmd);
-        }
+      }
     },
     Q: function(cmd){
-        //converts quadratic curves to cubic
-        return cmdHandler.C({
+      //converts quadratic curves to cubic
+      return cmdHandler.C({
         type: 'C',
         x1: activeX + 2/3 *(cmd.x1-activeX),
         y1: activeY + 2/3 *(cmd.y1-activeY),
@@ -514,83 +513,82 @@ function reducePathToLines(openPath, maxCurvePts){
         y2: cmd.y + 2/3 *(cmd.y1-cmd.y),
         x:cmd.x,
         y:cmd.y
-        });
+      });
     },
     Z: function(cmd){
-        finalCommandList.push(cmd);
+      finalCommandList.push(cmd);
     }
-    };
+  };
 
-    openPath.commands.forEach(function(cmd){
+  openPath.commands.forEach(function(cmd){
     cmdHandler[cmd.type](cmd);
-    });
+  });
 
-    openPath.commands = finalCommandList;
-    return openPath;
+  openPath.commands = finalCommandList;
+  return openPath;
 }
 
 function scaleOpenPath(openPath,sx,sy){
-
-    openPath.commands.forEach(function(cmd){
+  openPath.commands.forEach(function(cmd){
     if('ML'.indexOf(cmd.type) > -1){
-        cmd.x *= sx;
-        cmd.y *= sy;
+      cmd.x *= sx;
+      cmd.y *= sy;
     }
     else if(cmd.type === 'C'){
-        cmd.x *= sx;
-        cmd.y *= sy;
-        cmd.x1 *= sx;
-        cmd.y1 *= sy;
-        cmd.x2 *= sx;
-        cmd.y2 *= sy;
+      cmd.x *= sx;
+      cmd.y *= sy;
+      cmd.x1 *= sx;
+      cmd.y1 *= sy;
+      cmd.x2 *= sx;
+      cmd.y2 *= sy;
     }
     else if(cmd.type === 'Q'){
-        cmd.x *= sx;
-        cmd.y *= sy;
-        cmd.x1 *= sx;
-        cmd.y1 *= sy;
+      cmd.x *= sx;
+      cmd.y *= sy;
+      cmd.x1 *= sx;
+      cmd.y1 *= sy;
     }
-    });
+  });
 }
 
 function translateOpenPath(openPath,sx,sy){
-    openPath.commands.forEach(function(cmd){
+  openPath.commands.forEach(function(cmd){
     if('ML'.indexOf(cmd.type) > -1){
-        cmd.x += sx;
-        cmd.y += sy;
+      cmd.x += sx;
+      cmd.y += sy;
     }
     else if(cmd.type === 'C'){
-        cmd.x += sx;
-        cmd.y += sy;
-        cmd.x1 += sx;
-        cmd.y1 += sy;
-        cmd.x2 += sx;
-        cmd.y2 += sy;
+      cmd.x += sx;
+      cmd.y += sy;
+      cmd.x1 += sx;
+      cmd.y1 += sy;
+      cmd.x2 += sx;
+      cmd.y2 += sy;
     }
     else if(cmd.type === 'Q'){
-        cmd.x += sx;
-        cmd.y += sy;
-        cmd.x1 += sx;
-        cmd.y1 += sy;
+      cmd.x += sx;
+      cmd.y += sy;
+      cmd.x1 += sx;
+      cmd.y1 += sy;
     }
-    });
+  });
 }
 
 function measureCommandLength(startX, startY, cmd){
-    if(cmd.type === 'M' || cmd.type === 'Z'){
+  if(cmd.type === 'M' || cmd.type === 'Z'){
     return 0;
-    }
-    else{
+  }
+  else {
     var cmdBezier = convertCommandToBezier(startX, startY, cmd);
     if(cmdBezier !== null){
-        return cmdBezier.length();
+      return cmdBezier.length();
     }
     else{
         console.error('tried to measure weird command:', cmd);
     }
-    }
+  }
 }
 
 function lerp(a, b, t){
-    return (1-t)*a + t*b;
+  return (1-t)*a + t*b;
 }
