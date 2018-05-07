@@ -1,26 +1,38 @@
 ![Artboard 1@0.5x.png](https://bitbucket.org/repo/BRMLj5/images/3485932671-Artboard%201@0.5x.png)
 
 ##A library for hairy SVG text manipulation
-Written by Duncan Alexander, 2015-17
 
 ##Installation
-Bowlcut has two dependencies: [Bezier.js](https://pomax.github.io/bezierjs/) and [Opentype.js](http://opentype.js.org/). Please be sure to include them with your local installation of Bowlcut.
+Add this to your project's package.json file's dependencies:
+```
+	"bowlcut.js": "ssh://git@bitbucket.org:pollinate-dev/bowlcut.js.git"
+```
+then
+```
+	npm i
+```
 
 ##Use
 A Bowlcut object is a renderable collection of styled text grouped into regions. These regions reference properties on the Bowlcut object for their styling, and have some properties of their own. Here's an example of how to set up a Bowlcut object.
 
 ```
-	var wordmark = new Bowlcut();
-
-	wordmark.text = ['example', 'wordmark'];	// strings to reference
-	wordmark.colors = ['#ff0000' '#00ccff'];	// css-valid colors
-	wordmark.fonts = [collegiate, fullBlock];	// OpenType.js font objects. Must be preloaded.
+	var wordmark = new Bowlcut({
+		text: ['example', 'wordmark'],
+		colors: ['#ff0000', '#00ccff']
+	});
 
 	/* other properties:
 		precision (decimal places, defaults to 3)
 		debug (true / false). Shows paths defining the regions
 		uniqueId (hex string set up by the constructor)
 	*/
+
+	//now load the fonts (returns a promise):
+	wordmark.loadFonts([
+		['Modak-Regular', 'fonts/Modak-Regular.ttf'],
+		['PassionOne-Bold', 'fonts/PassionOne-Bold.ttf']
+	]);
+
 ```
 
 Region objects define the position, styling, and bounding paths of text in the Bowlcut object. First properties are passed to the constructor, then the bounding paths are set.
@@ -91,10 +103,15 @@ Finally, to render:
 
 And the final output:
 
-![Alt](/test/example-output-index2.svg "Example Bowlcut image")
+![Alt](examples/readme-output.svg "Example Bowlcut image")
 
-This example is provided as working code under `test/index2.html` in the repository.
+This example is provided as working code under `examples/readme.html` in the repository.
 
 ##Upcoming features
 - Negative values for radial arch
 - Further incorporation of Bezier.js LUT functionality and point sampling
+
+##License info
+Bowlcut.js is distributed under the MIT License.
+
+The example fonts included are from [Google Fonts](fonts.google.com) and are distributed under the [Open Font License](http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web).

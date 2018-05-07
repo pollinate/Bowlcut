@@ -1,4 +1,4 @@
-import {opentype, Bowlcut} from '../dist/bundle.js';
+import {Bowlcut} from '../dist/bundle.js';
 
 var staging = document.querySelector('#staging');
 
@@ -14,21 +14,12 @@ var color2 = document.querySelector('#color2');
 var color3 = document.querySelector('#color3');
 
 var templates = [];
-var fonts = {};
 var fontnames = [
-  'Athletic_Script',
-  'Bearcat',
-  'Cadet',
-  'Collegiate',
-  'Combine',
-  'Highlight',
-  'Premier',
-  'Terrafont',
-  'UA_Full_Block',
-  'Undeniable'
+  'Modak-Regular',
+  'PassionOne-Bold'
 ];
-var activeTemplateIndex = 4;
-var activeFont = null;
+var activeTemplateIndex = 6;
+var activeFont = fontnames[0];
 
 var text = [
   textline1.value,
@@ -42,8 +33,16 @@ var colors = [
   color3.value
 ];
 
-Promise.all([loadFonts(), loadTemplates()])
+Promise.all([loadTemplates()])
   .then(() => {
+
+    fontnames.map((fn) => {
+      let option = document.createElement('option');
+      option.value = fn;
+      option.textContent = fn;
+      fontSelect.appendChild(option);
+      fontSelect.value = fn;
+    });
 
     mlgSelect.onchange = function handleMLGSelect() {
       activeTemplateIndex = mlgSelect.value;
@@ -69,40 +68,40 @@ Promise.all([loadFonts(), loadTemplates()])
       drawText();
     };
 
-    activeFont = fontnames[0];
-
     drawText();
   });
 
 function drawText() {
-  let svgChildren = Array.from(staging.children);
-  for (let child of svgChildren) {
-    staging.removeChild(child);
-  }
 
-  var mlg = new Bowlcut();
-  mlg.text = text;
-  mlg.colors = colors;
-  mlg.fonts[0] = fonts[activeFont];
-  mlg.debug = true;
+  var mlg = new Bowlcut({ text, colors, debug: true });
+  mlg.loadFonts([[activeFont, `fonts/${activeFont}.ttf`]])
+    .then(() => {
+      let svgChildren = Array.from(staging.children);
+      for (let child of svgChildren) {
+        staging.removeChild(child);
+      }
 
-  templates[activeTemplateIndex].regions.forEach(function renderRegion(rg) {
+      templates[activeTemplateIndex].regions.forEach(function renderRegion(rg) {
 
-    rg.advanceWidthScale = 1.0;
+        rg.advanceWidthScale = 1.0;
 
-    var mlgRegion = mlg.addRegion(rg);
-    if (rg.envelope === 'arch') {
-      mlgRegion.makeArch(rg.toparch, rg.bottomarch);
-    }
-    else if (rg.envelope === 'straight') {
-      mlgRegion.makeStraightPaths();
-    }
-    else if (rg.envelope === 'radial-arch') {
-      mlgRegion.makeRadialArch(rg.arch);
-    }
-  });
+        var mlgRegion = mlg.addRegion(rg);
+        if (rg.envelope === 'arch') {
+          mlgRegion.makeArch(rg.toparch, rg.bottomarch);
+        }
+        else if (rg.envelope === 'straight') {
+          mlgRegion.makeStraightPaths();
+        }
+        else if (rg.envelope === 'radial-arch') {
+          mlgRegion.makeRadialArch(rg.arch);
+        }
+      });
 
-  staging.appendChild(mlg.render());
+      staging.appendChild(mlg.render());
+
+    });
+
+
 }
 
 function loadTemplates() {
@@ -114,29 +113,11 @@ function loadTemplates() {
         let option = document.createElement('option');
         option.value = templateIndex;
         option.textContent = template.name;
+        if (activeTemplateIndex == templateIndex) {
+          option.selected = true;
+        }
         mlgSelect.appendChild(option);
       });
     });
 
-}
-
-function loadFonts() {
-  let fontPromises = fontnames.map((fn) => {
-    return new Promise((fpres) => {
-      opentype.load('fonts/' + fn + '.ttf', (err, font) => {
-        if (err) {
-          throw new Error(err);
-        }
-        fonts[fn] = font;
-        fpres(font);
-        let option = document.createElement('option');
-        option.value = fn;
-        option.textContent = fn;
-        fontSelect.appendChild(option);
-        fontSelect.value = fn;
-      });
-    });
-  });
-
-  return Promise.all(fontPromises);
 }
