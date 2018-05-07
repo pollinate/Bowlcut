@@ -17,7 +17,7 @@ function Bowlcut(options = {}) {
     colors: [],
     regions: [],
     fonts: [],
-    precision: options.precision || 3,
+    precision: options.precision || 2,
     lutResolution: options.lutResolution || 100, //number of points in look up tables for curves
     debug: options.debug || false,
     uniqueId: Math.round(Math.random() * 1024).toString(16),

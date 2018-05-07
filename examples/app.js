@@ -40,6 +40,9 @@ Promise.all([loadTemplates()])
       let option = document.createElement('option');
       option.value = fn;
       option.textContent = fn;
+      if (fn === activeFont) {
+        option.selected = true;
+      }
       fontSelect.appendChild(option);
       fontSelect.value = fn;
     });
@@ -76,10 +79,7 @@ function drawText() {
   var mlg = new Bowlcut({ text, colors, debug: true });
   mlg.loadFonts([[activeFont, `fonts/${activeFont}.ttf`]])
     .then(() => {
-      let svgChildren = Array.from(staging.children);
-      for (let child of svgChildren) {
-        staging.removeChild(child);
-      }
+      emptySVG(staging);
 
       templates[activeTemplateIndex].regions.forEach(function renderRegion(rg) {
 
@@ -119,5 +119,11 @@ function loadTemplates() {
         mlgSelect.appendChild(option);
       });
     });
+}
 
+function emptySVG(svg) {
+  let svgChildren = Array.from(svg.children);
+  for (let child of svgChildren) {
+    svg.removeChild(child);
+  }
 }

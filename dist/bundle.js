@@ -8830,52 +8830,8 @@ function load(url, callback) {
         return callback(null, font$$1);
     });
 }
-
-/**
- * Synchronously load the font from a URL or file.
- * When done, returns the font object or throws an error.
- * @alias opentype.loadSync
- * @param  {string} url - The URL of the font to load.
- * @return {opentype.Font}
- */
-function loadSync(url) {
-    var fs = require$$0;
-    var buffer = fs.readFileSync(url);
-    return parseBuffer(util.nodeBufferToArrayBuffer(buffer));
-}
-
-var _parse = parse;
-var Font$1 = font.Font;
-var Glyph$1 = glyph.Glyph;
 var Path$1 = path.Path;
-var BoundingBox$1 = bbox.BoundingBox;
-var parse_1$17 = parseBuffer;
 var load_1 = load;
-var loadSync_1 = loadSync;
-
-var opentype = {
-	_parse: _parse,
-	Font: Font$1,
-	Glyph: Glyph$1,
-	Path: Path$1,
-	BoundingBox: BoundingBox$1,
-	parse: parse_1$17,
-	load: load_1,
-	loadSync: loadSync_1
-};
-
-var opentype$1 = /*#__PURE__*/Object.freeze({
-  default: opentype,
-  __moduleExports: opentype,
-  _parse: _parse,
-  Font: Font$1,
-  Glyph: Glyph$1,
-  Path: Path$1,
-  BoundingBox: BoundingBox$1,
-  parse: parse_1$17,
-  load: load_1,
-  loadSync: loadSync_1
-});
 
 var utils = createCommonjsModule(function (module) {
 (function() {
@@ -10355,7 +10311,7 @@ function Bowlcut(options = {}) {
     colors: [],
     regions: [],
     fonts: [],
-    precision: options.precision || 3,
+    precision: options.precision || 2,
     lutResolution: options.lutResolution || 100, //number of points in look up tables for curves
     debug: options.debug || false,
     uniqueId: Math.round(Math.random() * 1024).toString(16),
@@ -10965,4 +10921,4 @@ function lerp(a, b, t) {
   return (1 - t) * a + t * b;
 }
 
-export { Bowlcut, opentype$1 as opentype };
+export { Bowlcut };

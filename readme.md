@@ -5,7 +5,7 @@
 ##Installation
 Add this to your project's package.json file's dependencies:
 ```
-	"bowlcut.js": "ssh://git@bitbucket.org:pollinate-dev/bowlcut.js.git"
+	"Bowlcut.js": "ssh://git@bitbucket.org:pollinate-dev/bowlcut.js.git"
 ```
 then
 ```
@@ -103,9 +103,12 @@ Finally, to render:
 
 And the final output:
 
-![Alt](examples/readme-output.svg "Example Bowlcut image")
+![Alt](./examples/readme-output.svg "Example Bowlcut image")
 
 This example is provided as working code under `examples/readme.html` in the repository.
+
+##Samples
+Start a local server in the main folder, and navigate to examples/index.html, examples/logo.html, or examples/readme.html to see Bowlcut in action.
 
 ##Upcoming features
 - Negative values for radial arch
