@@ -3,3 +3,4 @@ dist
 scripts
 old
 webpack.config.js
+jsdocs.config.js

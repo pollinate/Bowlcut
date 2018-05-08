@@ -1,10 +1,9 @@
 import * as opentype from 'opentype.js';
 import * as bezierWrapper from 'bezier-js';
+import papercut from './papercut.js';
 
 const Bezier = bezierWrapper.default;
-
 const epsilon = 0.0001;
-
 const fontCache = {};
 
 export {
@@ -30,6 +29,11 @@ function Bowlcut(options = {}) {
 
   Object.assign(wordmark, options);
 
+  /**
+   * addRegion creates and adds a region to a Bowlcut object
+   * @param {Object} regionOptions allow for overrides for fill, stroke, etc. to be passed in on construction of a region.
+   * @returns {Object} the region object
+   */
   function addRegion(regionOptions) {
     //region constructor
 
@@ -53,7 +57,7 @@ function Bowlcut(options = {}) {
       debugPoints: [],
       // methods
       fitTextInBounds,
-      render,
+      renderRegion,
       makeStraightPaths,
       makeArch,
       makeRadialArch
@@ -63,6 +67,10 @@ function Bowlcut(options = {}) {
     wordmark.regions.push(region);
     return region;
 
+    /**
+     * fitTextInBounds scales the region's text to fit inside the region's bounds, with no other transformations
+     * @returns {Object} the scaled text as an opentype Path
+     */
     function fitTextInBounds() {
       let regionFont = wordmark.fonts[region.font];
       if (!regionFont) {
@@ -126,7 +134,11 @@ function Bowlcut(options = {}) {
       return textPath;
     }
 
-    function render() {
+    /**
+     * renderRegion uses the provided bounds and top/bottom paths for a region to render an SVG path in between
+     * @returns {Object} the rendered SVGPathElement
+     */
+    function renderRegion() {
       //calls renderTextToBounds and then renders text between paths. returns opentype path
 
       let straightTextRegion = region.fitTextInBounds();
@@ -240,6 +252,9 @@ function Bowlcut(options = {}) {
       return newPathToAppend;
     }
 
+    /**
+     * makeStraightPaths makes top and bottom paths from the verical edges of the region bounds
+     */
     function makeStraightPaths() {
       let toparc = createSVGElement('path');
       let bottomarc = createSVGElement('path');
@@ -249,8 +264,12 @@ function Bowlcut(options = {}) {
       region.bottomPath = bottomarc;
     }
 
+    /**
+     * makeArch makes quadratic arcs for the top and bottom path of a region
+     * @param {Number} topBend can be positive or negative
+     * @param {Number} bottomBend can be positive or negative
+     */
     function makeArch(topBend, bottomBend) {
-      //sets topPath and bottomPath to quadratic arcs based on values
       let toparc = createSVGElement('path');
       let bottomarc = createSVGElement('path');
       let bottomarcstr = '';
@@ -293,9 +312,11 @@ function Bowlcut(options = {}) {
       region.bottomPath = bottomarc;
     }
 
+    /**
+     * makeRadialArch sets the region's paths to a rainbow-shaped arch from the bounds and a bend strength
+     * @param {Number} radialBend must be >= 0
+     */
     function makeRadialArch(radialBend) {
-      //sets topPath and bottomPath to two radial arches
-
       if (radialBend === 0) {
         return makeStraightPaths();
       }
@@ -354,12 +375,17 @@ function Bowlcut(options = {}) {
     }
   }
 
-  function render() {
+  /**
+   * render creates an SVGGroupElement containing the rendered region paths
+   * @param {Boolean} [unify] merges region paths with a union operation, removing overlaps. Expensive so defaults to false.
+   * @returns {Object} the group element
+   */
+  function render(unify = false) {
     let wordmarkGroup = createSVGElement('g');
     wordmarkGroup.setAttribute('class', 'bowlcut-' + wordmark.uniqueId);
 
     wordmark.regions.forEach((region) => {
-      wordmarkGroup.appendChild(region.render());
+      wordmarkGroup.appendChild(region.renderRegion());
       if (wordmark.debug) {
         region.topPath.setAttribute('stroke', 'red');
         region.bottomPath.setAttribute('stroke', 'red');
@@ -379,11 +405,19 @@ function Bowlcut(options = {}) {
       }
     });
 
+    if (unify) {
+      wordmarkGroup = papercut(wordmarkGroup);
+    }
+
     return wordmarkGroup;
   }
 
+  /**
+   * loadFonts takes an array of tuples like so: [[fontName, fontUrl], ...]]
+   * @param {Array} fontTuples
+   * @returns {Object} a promise resolved when the fonts have loaded
+   */
   function loadFonts(fontTuples) {
-    // expects an array [[fontName, fontUrl], ...]
     let fontPromises = [];
 
     fontTuples.map((fontTuple) => {

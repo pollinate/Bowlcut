@@ -16,7 +16,9 @@ var color3 = document.querySelector('#color3');
 var templates = [];
 var fontnames = [
   'Modak-Regular',
-  'PassionOne-Bold'
+  'PassionOne-Bold',
+  'Damion-Regular',
+  'Molle-Regular'
 ];
 var activeTemplateIndex = 6;
 var activeFont = fontnames[0];
@@ -41,10 +43,9 @@ Promise.all([loadTemplates()])
       option.value = fn;
       option.textContent = fn;
       if (fn === activeFont) {
-        option.selected = true;
+        option.setAttribute('selected', 'selected');
       }
       fontSelect.appendChild(option);
-      fontSelect.value = fn;
     });
 
     mlgSelect.onchange = function handleMLGSelect() {
@@ -76,7 +77,7 @@ Promise.all([loadTemplates()])
 
 function drawText() {
 
-  var mlg = new Bowlcut({ text, colors, debug: true });
+  var mlg = new Bowlcut({ text, colors, debug: false });
   mlg.loadFonts([[activeFont, `fonts/${activeFont}.ttf`]])
     .then(() => {
       emptySVG(staging);
@@ -97,7 +98,7 @@ function drawText() {
         }
       });
 
-      staging.appendChild(mlg.render());
+      staging.appendChild(mlg.render(true));
 
     });
 
@@ -114,7 +115,7 @@ function loadTemplates() {
         option.value = templateIndex;
         option.textContent = template.name;
         if (activeTemplateIndex == templateIndex) {
-          option.selected = true;
+          option.setAttribute('selected', 'selected');
         }
         mlgSelect.appendChild(option);
       });

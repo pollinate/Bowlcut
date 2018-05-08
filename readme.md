@@ -110,9 +110,10 @@ This example is provided as working code under `examples/readme.html` in the rep
 ##Samples
 Start a local server in the main folder, and navigate to examples/index.html, examples/logo.html, or examples/readme.html to see Bowlcut in action.
 
-##Upcoming features
+##Upcoming features and fixes
 - Negative values for radial arch
 - Further incorporation of Bezier.js LUT functionality and point sampling
+- Debug mode is largely incompatible withe the papercut  operation.
 
 ##License info
 Bowlcut.js is distributed under the MIT License.
