@@ -2,7 +2,7 @@
 
 ## A library for hairy SVG text manipulation
 
-##Installation
+## Installation
 Add this to your project's package.json file's dependencies:
 ```
 	"Bowlcut.js": "ssh://git@bitbucket.org:pollinate-dev/bowlcut.js.git"
