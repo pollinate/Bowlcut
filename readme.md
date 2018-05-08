@@ -1,6 +1,6 @@
 ![Alt](./examples/logo.svg "The project logo")
 
-##A library for hairy SVG text manipulation
+## A library for hairy SVG text manipulation
 
 ##Installation
 Add this to your project's package.json file's dependencies:
@@ -12,7 +12,7 @@ then
 	npm i
 ```
 
-##Use
+## Use
 A Bowlcut object is a renderable collection of styled text grouped into regions. These regions reference properties on the Bowlcut object for their styling, and have some properties of their own. Here's an example of how to set up a Bowlcut object.
 
 ```
@@ -107,15 +107,15 @@ And the final output:
 
 This example is provided as working code under `examples/readme.html` in the repository.
 
-##Samples
+## Samples
 Start a local server in the main folder, and navigate to examples/methods.html, examples/logo.html, or examples/readme.html to see Bowlcut in action.
 
-##Upcoming features and fixes
+## Upcoming features and fixes
 - Negative values for radial arch
 - Further incorporation of Bezier.js LUT functionality and point sampling
 - Debug mode is largely incompatible withe the papercut  operation.
 
-##License info
+## License info
 Bowlcut.js is distributed under the MIT License.
 
 The example fonts included are from [Google Fonts](fonts.google.com) and are distributed under the [Open Font License](http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web).
