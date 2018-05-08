@@ -5,7 +5,7 @@
 ## Installation
 Add this to your project's package.json file's dependencies:
 ```
-	"Bowlcut.js": "ssh://git@bitbucket.org:pollinate-dev/bowlcut.js.git"
+	"Bowlcut.js": "ssh://git@github.com:pollinate/Bowlcut.js.git"
 ```
 then
 ```
