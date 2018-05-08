@@ -8,9 +8,10 @@
 -   [makeStraightPaths][4]
 -   [makeArch][5]
 -   [makeRadialArch][6]
--   [render][7]
--   [loadFonts][8]
--   [papercut][9]
+-   [removeRegion][7]
+-   [render][8]
+-   [loadFonts][9]
+-   [papercut][10]
 
 ## addRegion
 
@@ -18,21 +19,21 @@ addRegion creates and adds a region to a Bowlcut object
 
 **Parameters**
 
--   `regionOptions` **[Object][10]** allow for overrides for fill, stroke, etc. to be passed in on construction of a region.
+-   `regionOptions` **[Object][11]** allow for overrides for fill, stroke, etc. to be passed in on construction of a region.
 
-Returns **[Object][10]** the region object
+Returns **[Object][11]** the region object
 
 ## fitTextInBounds
 
 fitTextInBounds scales the region's text to fit inside the region's bounds, with no other transformations
 
-Returns **[Object][10]** the scaled text as an opentype Path
+Returns **[Object][11]** the scaled text as an opentype Path
 
 ## renderRegion
 
 renderRegion uses the provided bounds and top/bottom paths for a region to render an SVG path in between
 
-Returns **[Object][10]** the rendered SVGPathElement
+Returns **[Object][11]** the rendered SVGPathElement
 
 ## makeStraightPaths
 
@@ -44,8 +45,8 @@ makeArch makes quadratic arcs for the top and bottom path of a region
 
 **Parameters**
 
--   `topBend` **[Number][11]** can be positive or negative
--   `bottomBend` **[Number][11]** can be positive or negative
+-   `topBend` **[Number][12]** can be positive or negative
+-   `bottomBend` **[Number][12]** can be positive or negative
 
 ## makeRadialArch
 
@@ -53,7 +54,15 @@ makeRadialArch sets the region's paths to a rainbow-shaped arch from the bounds 
 
 **Parameters**
 
--   `radialBend` **[Number][11]** must be >= 0
+-   `radialBend` **[Number][12]** must be >= 0
+
+## removeRegion
+
+removeRegion deletes a region from a Bowlcut wordmark
+
+**Parameters**
+
+-   `region` **[Object][11]** the region to delete
 
 ## render
 
@@ -61,9 +70,9 @@ render creates an SVGGroupElement containing the rendered region paths
 
 **Parameters**
 
--   `unify` **[Boolean][12]?** merges region paths with a union operation, removing overlaps. Expensive so defaults to false. (optional, default `false`)
+-   `unify` **[Boolean][13]?** merges region paths with a union operation, removing overlaps. Expensive so defaults to false. (optional, default `false`)
 
-Returns **[Object][10]** the group element
+Returns **[Object][11]** the group element
 
 ## loadFonts
 
@@ -71,9 +80,9 @@ loadFonts takes an array of tuples like so: \[[fontName, fontUrl], ...]]
 
 **Parameters**
 
--   `fontTuples` **[Array][13]** 
+-   `fontTuples` **[Array][14]** 
 
-Returns **[Object][10]** a promise resolved when the fonts have loaded
+Returns **[Object][11]** a promise resolved when the fonts have loaded
 
 ## papercut
 
@@ -81,9 +90,9 @@ papercut generates the union of each group of characters in an svg DOM element
 
 **Parameters**
 
--   `domElem` **[Object][10]** svg element generated from Bowlcut.
+-   `domElem` **[Object][11]** svg element generated from Bowlcut.
 
-Returns **[Object][10]** New svg DOM element with unions applied.
+Returns **[Object][11]** New svg DOM element with unions applied.
 
 [1]: #addregion
 
@@ -97,16 +106,18 @@ Returns **[Object][10]** New svg DOM element with unions applied.
 
 [6]: #makeradialarch
 
-[7]: #render
+[7]: #removeregion
 
-[8]: #loadfonts
+[8]: #render
 
-[9]: #papercut
+[9]: #loadfonts
 
-[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[10]: #papercut
 
-[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+
+[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array

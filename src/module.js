@@ -23,6 +23,7 @@ function Bowlcut(options = {}) {
     fudgeFactor: 1.362, // not sure why this works - seems to be a good average for scaling fonts between paths
     // methods
     addRegion,
+    removeRegion,
     render,
     loadFonts
   };
@@ -55,6 +56,7 @@ function Bowlcut(options = {}) {
         0: []
       },
       debugPoints: [],
+      uniqueId: Math.round(Math.random() * 1024).toString(16),
       // methods
       fitTextInBounds,
       renderRegion,
@@ -372,6 +374,23 @@ function Bowlcut(options = {}) {
         toparcstr += bigBx + ' ' + bigBy;
         toparc.setAttribute('d', toparcstr);
       }
+    }
+  }
+
+  /**
+   * removeRegion deletes a region from a Bowlcut wordmark
+   * @param {Object} region the region to delete
+   */
+  function removeRegion (region) {
+    let regionIndex = wordmark.regions.findIndex((someRegion) => {
+      return someRegion.uniqueId == region.uniqueId;
+    });
+
+    if (regionIndex > -1) {
+      wordmark.regions.splice(regionIndex, 1);
+    }
+    else {
+      console.error('Couldn\'t find region to delete.');
     }
   }
 
