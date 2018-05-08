@@ -1,4 +1,4 @@
-![Logo](./examples/logo.svg)
+![Alt](./examples/logo.svg "The project logo")
 
 ##A library for hairy SVG text manipulation
 
