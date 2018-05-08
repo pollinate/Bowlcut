@@ -1,4 +1,4 @@
-![Artboard 1@0.5x.png](logo.svg)
+![Logo](./examples/logo.svg)
 
 ##A library for hairy SVG text manipulation
 
