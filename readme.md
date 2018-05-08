@@ -1,4 +1,4 @@
-![Artboard 1@0.5x.png](https://bitbucket.org/repo/BRMLj5/images/3485932671-Artboard%201@0.5x.png)
+![Artboard 1@0.5x.png](logo.svg)
 
 ##A library for hairy SVG text manipulation
 
