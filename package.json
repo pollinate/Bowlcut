@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/pollinate-dev/bowlcut.js.git"
+    "url": "git+ssh://git@github.com:pollinate/Bowlcut.js.git"
   },
   "author": "Pollinate Inc.",
   "contributors": [
@@ -18,7 +18,7 @@
     "Cory Buckley <cory.buckley@pollinate.com>"
   ],
   "license": "MIT",
-  "homepage": "https://bitbucket.org/pollinate-dev/bowlcut.js#readme",
+  "homepage": "https://github.com/pollinate/Bowlcut.js",
   "devDependencies": {
     "bezier-js": "^2.2.1",
     "documentation": "^6.3.2",
