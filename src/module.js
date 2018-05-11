@@ -381,7 +381,7 @@ function Bowlcut(options = {}) {
    * removeRegion deletes a region from a Bowlcut wordmark
    * @param {Object} region the region to delete
    */
-  function removeRegion (region) {
+  function removeRegion(region) {
     let regionIndex = wordmark.regions.findIndex((someRegion) => {
       return someRegion.uniqueId == region.uniqueId;
     });
