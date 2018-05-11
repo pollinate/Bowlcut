@@ -1,11 +1,15 @@
 import {Bowlcut} from '../dist/bundle.js';
 
-var target = document.querySelector('#target');
-var finalString = 'BOWLCUT.JS IS A LIBRARY FOR HAIRY SVG TEXT MANIPULATION BOWLCUT.JS';
-var wordmark = new Bowlcut({
+const target = document.querySelector('#target');
+const hairTop = document.querySelector('#hair-top');
+const hairBottom = document.querySelector('#hair-bottom');
+const finalString = 'BOWLCUT.JS IS A LIBRARY FOR HAIRY SVG TEXT MANIPULATION BOWLCUT.JS';
+const wordmark = new Bowlcut({
   text: [''],
-  colors: ['#333333']
+  colors: ['#333333'],
+  precision: 1
 });
+var wmkGroup;
 
 //some example region data
 var dataA = {
@@ -21,8 +25,8 @@ var dataA = {
   slice: {
     0: []
   },
-  topPath: document.querySelector('#hair-top'),
-  bottomPath: document.querySelector('#hair-bottom'),
+  topPath: hairTop,
+  bottomPath: hairBottom,
   stretchToWidth: false,
   advanceWidthScale: 1.0
 };
@@ -34,8 +38,10 @@ wordmark.loadFonts([
 ])
   .then(() => {
     wordmark.text[0] = finalString.substr(0, 10);
-    emptySVG(target);
-    target.appendChild(wordmark.render());
+    target.removeChild(hairTop);
+    target.removeChild(hairBottom);
+    wmkGroup = wordmark.render();
+    target.appendChild(wmkGroup);
     return new Promise((res) => {
       setTimeout(res, 1000);
     });
@@ -43,19 +49,13 @@ wordmark.loadFonts([
   .then(() => {
     let ic = 0;
     let iv = setInterval(() => {
-      emptySVG(target);
+      target.removeChild(wmkGroup);
       wordmark.text[0] = finalString.substr(ic, 10);
-      target.appendChild(wordmark.render());
+      wmkGroup = wordmark.render();
+      target.appendChild(wmkGroup);
       ic++;
       if (ic > finalString.length - 10) {
         clearInterval(iv);
       }
     }, 120);
   });
-
-function emptySVG(svg) {
-  let svgChildren = Array.from(svg.children);
-  for (let child of svgChildren) {
-    svg.removeChild(child);
-  }
-}

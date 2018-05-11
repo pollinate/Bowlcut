@@ -11,7 +11,8 @@ const customb = document.querySelector('#custom-b');
 
 var wordmark = new Bowlcut({
   text: ['BOWLCUT.JS', 'A library for hairy SVG text manipulation'],
-  colors: ['#cc9955', '#443355']
+  colors: ['#cc9955', '#443355'],
+  debug: false
 });
 
 const region = wordmark.addRegion({
