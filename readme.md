@@ -1,11 +1,15 @@
 ![Alt](./examples/logo.svg "The project logo")
 
 ## A library for hairy SVG text manipulation
+
+| ![1st screenshot](./multiline-text.PNG) | ![2nd screenshot](./neg-radial-arch.PNG) | ![3rd screenshot](./custom-path.PNG) |
+
 Bowlcut.js is a library designed to stretch vector text between sets of paths. Specifically, Bowlcut uses TTF fonts to produce styled SVG paths. Bowlcut wordmarks can have multiple region that text flows between, as many fonts as you would like, and a set of colors for various fills and strokes. Bowlcut was originally built for procedurally generating sports team logos, but it has many other applications as well in graphic design and inventive text layouts.
 
 Bowlcut is designed to be used in a browser context, because some of its dependencies rely on using the DOM for measuring the size of paths. The built file provided for use is an ES6 module, but it is provided as a bundle because its dependencies are commonjs modules that have to be included with it. You can edit the Rollup config file and run your own builds for additional contexts.
 
 ## Installation
+
 Add this to your project's package.json file's dependencies:
 ```
 	"Bowlcut.js": "ssh://git@github.com:pollinate/Bowlcut.js.git"
@@ -20,6 +24,7 @@ Bowlcut is an ES6 module, so you will need to import it into your coes:
 ```
 
 ## Use
+
 A Bowlcut object is a renderable collection of styled text grouped into regions. These regions reference properties on the Bowlcut object for their styling, and have some properties of their own. Here's an example of how to set up a Bowlcut object.
 
 ```
@@ -115,14 +120,16 @@ And the final output:
 This example is provided as working code under `examples/readme.html` in the repository.
 
 ## Samples
+
 Start a local server in the main folder, and navigate to examples/methods.html, examples/logo.html, or examples/readme.html to see Bowlcut in action.
 
 ## Upcoming features and fixes
-- Negative values for radial arch
+
 - Further incorporation of Bezier.js LUT functionality and point sampling
 - A set of unit tests for the path parsing functions
 
 ## License info
+
 Bowlcut.js is distributed under the MIT License.
 
 The example fonts included are from [Google Fonts](fonts.google.com) and are distributed under the [Open Font License](http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web).

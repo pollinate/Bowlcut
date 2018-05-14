@@ -11,8 +11,8 @@ const customb = document.querySelector('#custom-b');
 
 var wordmark = new Bowlcut({
   text: ['BOWLCUT.JS', 'A library for hairy SVG text manipulation'],
-  colors: ['#cc9955', '#443355'],
-  debug: true
+  colors: ['#cfc066', '#440060'],
+  debug: false
 });
 
 const region = wordmark.addRegion({
@@ -81,7 +81,7 @@ wordmark.loadFonts([['Molle-Regular', 'fonts/Molle-Regular.ttf']])
         height: 200
       },
       font: 0,
-      fill: 1,
+      fill: 0,
       stroke: null,
       slice: {
         0: [1]
