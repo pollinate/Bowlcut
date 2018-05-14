@@ -32556,6 +32556,8 @@ function Bowlcut(options = {}) {
       if (radialBend === 0) {
         return makeStraightPaths();
       }
+      let lowerArch = radialBend < 0;
+      radialBend = Math.abs(radialBend);
 
       let toparc = createSVGElement$1('path');
       let bottomarc = createSVGElement$1('path');
@@ -32574,7 +32576,7 @@ function Bowlcut(options = {}) {
       };
 
       calcArc(arcBend);
-      drawArcs();
+      drawArcs(lowerArch);
       region.topPath = toparc;
       region.bottomPath = bottomarc;
 
@@ -32585,26 +32587,48 @@ function Bowlcut(options = {}) {
         arc.s = Math.tan(arc.theta) * arc.rg / 2;
       }
 
-      function drawArcs() {
-        let smallAx = region.bounds.x;
-        let smallAy = (region.bounds.y + region.bounds.height);
-        let smallBx = (region.bounds.x + region.bounds.width);
-        let smallBy = smallAy;
-        let smallRadius = Math.sqrt(Math.pow(arc.s,2) + Math.pow(region.bounds.width / 2,2));
+      function drawArcs(reverse = false) {
+
+        let smallAx, smallAy, smallBx, smallBy, smallRadius,
+          bigAx, bigAy, bigBx, bigBy, bigRadius;
+
+        let sweepFlag = reverse ? 0 : 1;
+
+        if (reverse) {
+          bigAx = region.bounds.x;
+          bigAy = region.bounds.y;
+          bigBx = (region.bounds.x + region.bounds.width);
+          bigBy = bigAy;
+          bigRadius = Math.sqrt(Math.pow(arc.s,2) + Math.pow(region.bounds.width / 2,2));
+
+          smallAx = region.bounds.x + region.bounds.height * Math.cos(arc.theta);
+          smallAy = region.bounds.y - region.bounds.height * Math.sin(arc.theta);
+          smallBx = region.bounds.x + region.bounds.width - region.bounds.height * Math.cos(arc.theta);
+          smallBy = region.bounds.y - region.bounds.height * Math.sin(arc.theta);
+          smallRadius = bigRadius + region.bounds.height;
+        }
+        else {
+          smallAx = region.bounds.x;
+          smallAy = (region.bounds.y + region.bounds.height);
+          smallBx = (region.bounds.x + region.bounds.width);
+          smallBy = smallAy;
+          smallRadius = Math.sqrt(Math.pow(arc.s,2) + Math.pow(region.bounds.width / 2,2));
+
+          bigAx = region.bounds.x + region.bounds.height * Math.cos(arc.theta);
+          bigAy = region.bounds.y + region.bounds.height + region.bounds.height * Math.sin(arc.theta);
+          bigBx = region.bounds.x + region.bounds.width - region.bounds.height * Math.cos(arc.theta);
+          bigBy = region.bounds.y + region.bounds.height + region.bounds.height * Math.sin(arc.theta);
+          bigRadius = smallRadius + region.bounds.height;
+        }
+
 
         bottomarcstr = 'M' + smallAx + ' ' + smallAy;
-        bottomarcstr += ' A' + smallRadius + ' ' + smallRadius + ' 0 0 1 ';
+        bottomarcstr += ' A' + smallRadius + ' ' + smallRadius + ' 0 0 ' + sweepFlag + ' ';
         bottomarcstr += smallBx + ' ' + smallBy;
         bottomarc.setAttribute('d', bottomarcstr);
 
-        let bigAx = region.bounds.x + region.bounds.height * Math.cos(arc.theta);
-        let bigAy = region.bounds.y + region.bounds.height + region.bounds.height * Math.sin(arc.theta);
-        let bigBx = region.bounds.x + region.bounds.width - region.bounds.height * Math.cos(arc.theta);
-        let bigBy = region.bounds.y + region.bounds.height + region.bounds.height * Math.sin(arc.theta);
-        let bigRadius = smallRadius + region.bounds.height;
-
         toparcstr = 'M' + (bigAx) + ' ' + (bigAy);
-        toparcstr += ' A' + bigRadius + ' ' + bigRadius + ' 0 0 1 ';
+        toparcstr += ' A' + bigRadius + ' ' + bigRadius + ' 0 0 ' + sweepFlag + ' ';
         toparcstr += bigBx + ' ' + bigBy;
         toparc.setAttribute('d', toparcstr);
       }
