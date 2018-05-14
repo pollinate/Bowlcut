@@ -1,6 +1,9 @@
 ![Alt](./examples/logo.svg "The project logo")
 
 ## A library for hairy SVG text manipulation
+Bowlcut.js is a library designed to stretch vector text between sets of paths. Specifically, Bowlcut uses TTF fonts to produce styled SVG paths. Bowlcut wordmarks can have multiple region that text flows between, as many fonts as you would like, and a set of colors for various fills and strokes. Bowlcut was originally built for procedurally generating sports team logos, but it has many other applications as well in graphic design and inventive text layouts.
+
+Bowlcut is designed to be used in a browser context, because some of its dependencies rely on isng the DOM for measuring the size of paths. The built file provided for use is an ES6 module, but it is provided as a bundle because its dependencies are commonjs modules that have to be included with it. You can edit the Rollup config file and run your own builds for additional contexts.
 
 ## Installation
 Add this to your project's package.json file's dependencies:
@@ -10,6 +13,10 @@ Add this to your project's package.json file's dependencies:
 then
 ```
 	npm i
+```
+Bowlcut is an ES6 module, so you will need to import it into your coes:
+```
+	import {Bowlcut} from 'node_modules/Bowlcut.js/dist/bundle.js';
 ```
 
 ## Use
@@ -113,7 +120,7 @@ Start a local server in the main folder, and navigate to examples/methods.html, 
 ## Upcoming features and fixes
 - Negative values for radial arch
 - Further incorporation of Bezier.js LUT functionality and point sampling
-- Debug mode is largely incompatible withe the papercut  operation.
+- A set of unit tests for the path parsing functions
 
 ## License info
 Bowlcut.js is distributed under the MIT License.

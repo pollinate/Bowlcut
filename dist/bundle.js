@@ -32636,10 +32636,16 @@ function Bowlcut(options = {}) {
   function render(unify = false) {
     let wordmarkGroup = createSVGElement$1('g');
     wordmarkGroup.setAttribute('class', 'bowlcut-' + wordmark.uniqueId);
-
     wordmark.regions.forEach((region) => {
       wordmarkGroup.appendChild(region.renderRegion());
-      if (wordmark.debug) {
+    });
+
+    if (unify) {
+      wordmarkGroup = papercut(wordmarkGroup);
+    }
+
+    if (wordmark.debug) {
+      wordmark.regions.forEach((region) => {
         region.topPath.setAttribute('stroke', 'red');
         region.bottomPath.setAttribute('stroke', 'red');
         region.topPath.setAttribute('fill', 'none');
@@ -32655,11 +32661,7 @@ function Bowlcut(options = {}) {
           upPt.setAttribute('fill','#00ff00');
           wordmarkGroup.appendChild(upPt);
         }
-      }
-    });
-
-    if (unify) {
-      wordmarkGroup = papercut(wordmarkGroup);
+      });
     }
 
     return wordmarkGroup;
