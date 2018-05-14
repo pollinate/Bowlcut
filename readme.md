@@ -28,7 +28,7 @@ Bowlcut is an ES6 module, so you will need to import it into your code:
 
 A Bowlcut object is a renderable collection of styled text grouped into regions. These regions reference properties on the Bowlcut object for their styling, and have some properties of their own. Here's an example of how to set up a Bowlcut object.
 
-```
+```js
 	var wordmark = new Bowlcut({
 		text: ['example', 'wordmark'],
 		colors: ['#ff0000', '#00ccff']
@@ -50,7 +50,7 @@ A Bowlcut object is a renderable collection of styled text grouped into regions.
 
 Region objects define the position, styling, and bounding paths of text in the Bowlcut object. First properties are passed to the constructor, then the bounding paths are set.
 
-```
+```js
 	//some example region data
 	var dataA = {
 		bounds: {
@@ -97,7 +97,7 @@ Region objects define the position, styling, and bounding paths of text in the B
 
 Here's what setting up the bounding paths looks like.
 
-```
+```js
 	regionA.makeRadialArch(0.5); //value of 0-1
 
 	regionB.makeArch(0, 0.3);	// creates a bridge arch, with a flat top and a curved-up bottom
@@ -108,7 +108,7 @@ Here's what setting up the bounding paths looks like.
 
 Finally, to render:
 
-```
+```js
 	someSvg.appendChild(wordmark.render());
 
 	//the render() function returns an SVG group of paths representing the regions.
