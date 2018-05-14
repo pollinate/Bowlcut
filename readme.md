@@ -19,7 +19,7 @@ then
 ```
 	npm i
 ```
-Bowlcut is an ES6 module, so you will need to import it into your coes:
+Bowlcut is an ES6 module, so you will need to import it into your code:
 ```
 	import {Bowlcut} from 'node_modules/Bowlcut.js/dist/bundle.js';
 ```
