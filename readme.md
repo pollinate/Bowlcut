@@ -2,7 +2,7 @@
 
 ## A library for hairy SVG text manipulation
 
-| ![1st screenshot](./examplesmultiline-text.PNG) | ![2nd screenshot](./examplesneg-radial-arch.PNG) | ![3rd screenshot](./examplescustom-path.PNG) |
+| ![1st screenshot](./examples/multiline-text.PNG) | ![2nd screenshot](./examples/neg-radial-arch.PNG) | ![3rd screenshot](./examples/custom-path.PNG) |
 | --- | --- | --- |
 
 Bowlcut.js is a library designed to stretch vector text between sets of paths. Specifically, Bowlcut uses TTF fonts to produce styled SVG paths. Bowlcut wordmarks can have multiple region that text flows between, as many fonts as you would like, and a set of colors for various fills and strokes. Bowlcut was originally built for procedurally generating sports team logos, but it has many other applications as well in graphic design and inventive text layouts.
