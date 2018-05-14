@@ -122,7 +122,7 @@ This example is provided as working code under `examples/readme.html` in the rep
 
 ## Samples
 
-Start a local server in the main folder, and navigate to examples/methods.html, examples/logo.html, or examples/readme.html to see Bowlcut in action.
+Start a local server in the main folder and navigate to examples/methods.html, examples/logo.html, examples/radial-test.html, or examples/readme.html to see Bowlcut in action.
 
 ## Upcoming features and fixes
 
