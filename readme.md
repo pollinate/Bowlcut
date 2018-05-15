@@ -1,4 +1,4 @@
-![Alt](./examples/logo.svg "The project logo")
+![Alt](./examples/logo.png "The project logo")
 
 ## A library for hairy SVG text manipulation
 
@@ -11,17 +11,12 @@ Bowlcut is designed to be used in a browser context, because some of its depende
 
 ## Installation
 
-Add this to your project's package.json file's dependencies:
 ```
-	"bowlcut": "ssh://git@github.com:pollinate/Bowlcut.git"
-```
-then
-```
-	npm i
+	npm i bowlcut
 ```
 Bowlcut is an ES6 module, so you will need to import it into your code:
 ```
-	import {Bowlcut} from 'node_modules/Bowlcut/dist/bundle.js';
+	import {Bowlcut} from 'node_modules/bowlcut/dist/bundle.js';
 ```
 
 ## Use
@@ -116,7 +111,7 @@ Finally, to render:
 
 And the final output:
 
-![Alt](./examples/readme-output.svg "Example Bowlcut image")
+![Alt](./examples/readme-output.png "Example Bowlcut image")
 
 This example is provided as working code under `examples/readme.html` in the repository.
 
