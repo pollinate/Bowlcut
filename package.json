@@ -1,5 +1,5 @@
 {
-  "name": "bowlcut.js",
+  "name": "bowlcut",
   "version": "0.2.0",
   "description": "A library for hairy SVG text manipulation",
   "main": "dist/bundle.js",

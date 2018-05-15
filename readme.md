@@ -5,7 +5,7 @@
 | ![1st screenshot](./examples/multiline-text.PNG) | ![2nd screenshot](./examples/neg-radial-arch.PNG) | ![3rd screenshot](./examples/custom-path.PNG) |
 | --- | --- | --- |
 
-Bowlcut.js is a library designed to stretch vector text between sets of paths. Specifically, Bowlcut uses TTF fonts to produce styled SVG paths. Bowlcut wordmarks can have multiple region that text flows between, as many fonts as you would like, and a set of colors for various fills and strokes. Bowlcut was originally built for procedurally generating sports team logos, but it has many other applications as well in graphic design and inventive text layouts.
+Bowlcut is a library designed to stretch vector text between sets of paths. Specifically, Bowlcut uses TTF fonts to produce styled SVG paths. Bowlcut wordmarks can have multiple region that text flows between, as many fonts as you would like, and a set of colors for various fills and strokes. Bowlcut was originally built for procedurally generating sports team logos, but it has many other applications as well in graphic design and inventive text layouts.
 
 Bowlcut is designed to be used in a browser context, because some of its dependencies rely on using the DOM for measuring the size of paths. The built file provided for use is an ES6 module, but it is provided as a bundle because its dependencies are commonjs modules that have to be included with it. You can edit the Rollup config file and run your own builds for additional contexts.
 
@@ -13,7 +13,7 @@ Bowlcut is designed to be used in a browser context, because some of its depende
 
 Add this to your project's package.json file's dependencies:
 ```
-	"Bowlcut.js": "ssh://git@github.com:pollinate/Bowlcut.js.git"
+	"bowlcut": "ssh://git@github.com:pollinate/Bowlcut.git"
 ```
 then
 ```
@@ -21,7 +21,7 @@ then
 ```
 Bowlcut is an ES6 module, so you will need to import it into your code:
 ```
-	import {Bowlcut} from 'node_modules/Bowlcut.js/dist/bundle.js';
+	import {Bowlcut} from 'node_modules/Bowlcut/dist/bundle.js';
 ```
 
 ## Use
